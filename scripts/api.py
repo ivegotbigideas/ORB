@@ -4,11 +4,12 @@ import rospy
 from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
+from cv_bridge import CvBridge, CvBridgeError
 
 class Orb():
     def __init__(self):
         # subscribers
-        self._camera_subscriber = None
+        self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image, self.get_latest_camera_data)
         self._lidar_subscriber = None
         self._robot_ground_truth_subscriber = None
         self._slam_map_subscriber = None
@@ -18,11 +19,16 @@ class Orb():
         self._robot_twist_publisher = None
         self._robot_pose_publisher = None
 
-    def get_latest_camera_data():
+    def get_latest_camera_data(self, msg):
         """
         This function should return the latest camera data
         """
-        pass
+        bridge = CvBridge()
+        try:
+            cv2 = bridge.imgmsg_to_cv2(msg, "rgb8")
+            return cv2
+        except CvBridgeError as e:
+            print(e)
 
     def get_latest_lidar_data():
         """
