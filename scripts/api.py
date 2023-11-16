@@ -10,7 +10,7 @@ class Orb():
     def __init__(self):
         # subscribers
         self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image)
-        self._lidar_subscriber = None
+        self._lidar_subscriber = rospy.Subscriber("/base_scan", LaserScan)
         self._robot_ground_truth_subscriber = None
         self._slam_map_subscriber = None
         self._slam_estimated_pose_subscriber = None
@@ -35,11 +35,38 @@ class Orb():
         except CvBridgeError as e:
             print(e)
 
-    def get_latest_lidar_data():
+    def get_latest_lidar_data(self, *callback_message):
         """
         This function should return the latest lidar scanner data
         """
-        pass
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/base_scan", LaserScan)
+
+        msg = msg[0]
+        
+        laser_data = {
+            "header": {
+                "seq": msg.header.seq,
+                "stamp": {
+                    "secs": msg.header.stamp.secs,
+                    "nsecs": msg.header.stamp.nsecs
+                },
+                "frame_id": msg.header.frame_id
+            },
+            "angle_min": msg.angle_min,
+            "angle_max": msg.angle_max,
+            "angle_increment": msg.angle_increment,
+            "time_increment": msg.time_increment,
+            "scan_time": msg.scan_time,
+            "range_min": msg.range_min,
+            "range_max": msg.range_max,
+            "ranges": list(msg.ranges),
+            "intensities": list(msg.intensities)
+        }
+
+        return laser_data
 
     def get_ground_truth_robot_pose():
         """
