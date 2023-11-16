@@ -6,6 +6,18 @@ from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
 
 class Orb():
+    def __init__(self):
+        # subscribers
+        self._camera_subscriber = None
+        self._lidar_subscriber = None
+        self._robot_ground_truth_subscriber = None
+        self._slam_map_subscriber = None
+        self._slam_estimated_pose_subscriber = None
+
+        # publishers
+        self._robot_twist_publisher = None
+        self._robot_pose_publisher = None
+
     def get_latest_camera_data():
         """
         This function should return the latest camera data
@@ -73,6 +85,6 @@ orb = Orb()
 target = Target()
 
 if __name__=="__main__":
-    pass
+    rospy.spin()
 
 rospy.spin()
