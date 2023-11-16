@@ -5,13 +5,14 @@ from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
+from gazebo_msgs.msg import ModelStates
 
 class Orb():
     def __init__(self):
         # subscribers
         self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image)
         self._lidar_subscriber = rospy.Subscriber("/base_scan", LaserScan)
-        self._robot_ground_truth_subscriber = None
+        self._robot_ground_truth_subscriber = rospy.Subscriber("/gazebo/model_states", ModelStates)
         self._slam_map_subscriber = None
         self._slam_estimated_pose_subscriber = None
 
@@ -68,11 +69,34 @@ class Orb():
 
         return laser_data
 
-    def get_ground_truth_robot_pose():
+    def get_ground_truth_robot_pose(self, *callback_message):
         """
         This function should tell us where the robot actually is
         """
-        pass
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
+        
+        msg = msg[0]
+
+        orb_name = "simple_bot"
+        index = msg.name.index(orb_name)
+        pose = msg.pose[index]
+        pose = {
+            "position": {
+                "x": pose.position.x,
+                "y": pose.position.y,
+                "z": pose.position.z
+            },
+            "orientation": {
+                "x": pose.orientation.x,
+                "y": pose.orientation.y,
+                "z": pose.orientation.z,
+                "w": pose.orientation.w
+            }
+        }
+        return pose
 
     def move_robot():
         """
