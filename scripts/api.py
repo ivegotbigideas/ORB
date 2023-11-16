@@ -170,21 +170,15 @@ class Orb:
         msg = msg[0].pose.pose
 
         estimated_pose = {
-            'position': {
-                'x': msg.position.x,
-                'y': msg.position.y,
-                'z': msg.position.z
+            "position": {"x": msg.position.x, "y": msg.position.y, "z": msg.position.z},
+            "orientation": {
+                "x": msg.orientation.x,
+                "y": msg.orientation.y,
+                "z": msg.orientation.z,
+                "w": msg.orientation.w,
             },
-            'orientation': {
-                'x': msg.orientation.x,
-                'y': msg.orientation.y,
-                'z': msg.orientation.z,
-                'w':msg.orientation.w
-            }
         }
         return estimated_pose
-
-
 
     def terminate_robot():
         """
