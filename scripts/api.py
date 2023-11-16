@@ -16,7 +16,7 @@ class Orb:
         self._robot_ground_truth_subscriber = rospy.Subscriber(
             "/gazebo/model_states", ModelStates
         )
-        self._slam_map_subscriber = rospy.Subscriber("/map", ModelStates)
+        self._slam_map_subscriber = rospy.Subscriber("/map", OccupancyGrid)
         self._slam_estimated_pose_subscriber = None
 
         # publishers
@@ -112,11 +112,50 @@ class Orb:
         """
         pass
 
-    def get_latest_slam_map():
+    def get_latest_slam_map(self, *callback_message):
         """
         This function should return the latest occupancy grid
         """
-        pass
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/map", OccupancyGrid)
+        msg = msg[0]
+
+        occ_grid = {
+            "header": {
+                "seq": msg.header.seq,
+                "stamp": {
+                    "secs": msg.header.stamp.secs,
+                    "nsecs": msg.header.stamp.nsecs,
+                },
+                "frame_id": msg.header.frame_id,
+            },
+            "info": {
+                "map_load_time": {
+                    "secs": msg.info.map_load_time.secs,
+                    "nsecs": msg.info.map_load_time.nsecs,
+                },
+                "resolution": msg.info.resolution,
+                "width": msg.info.width,
+                "height": msg.info.height,
+                "origin": {
+                    "position": {
+                        "x": msg.info.origin.position.x,
+                        "y": msg.info.origin.position.y,
+                        "z": msg.info.origin.position.z,
+                    },
+                    "orientation": {
+                        "x": msg.info.origin.orientation.x,
+                        "y": msg.info.origin.orientation.y,
+                        "z": msg.info.origin.orientation.z,
+                        "w": msg.info.origin.orientation.w,
+                    },
+                },
+            },
+            "data": msg.data,
+        }
+        return occ_grid
 
     def get_slam_location():
         """
