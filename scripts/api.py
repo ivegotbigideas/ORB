@@ -11,15 +11,15 @@ from gazebo_msgs.msg import ModelStates
 class Orb:
     def __init__(self):
         # subscribers
-        self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image)
-        self._lidar_subscriber = rospy.Subscriber("/base_scan", LaserScan)
-        self._robot_ground_truth_subscriber = rospy.Subscriber(
-            "/gazebo/model_states", ModelStates
-        )
-        self._slam_map_subscriber = rospy.Subscriber("/map", OccupancyGrid)
-        self._slam_odom_fix_subscriber = rospy.Subscriber(
-            "/odom_fix", Odometry, self.get_slam_location
-        )
+        if False:  # debug
+            self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image, self.get_latest_camera_data)
+            self._lidar_subscriber = rospy.Subscriber("/base_scan", LaserScan, self.get_latest_lidar_data)
+            self._robot_ground_truth_subscriber = rospy.Subscriber(
+                "/gazebo/model_states", ModelStates, self.get_ground_truth_robot_pose
+            )
+            self._slam_map_subscriber = rospy.Subscriber("/map", OccupancyGrid, self.get_latest_slam_map)
+            self._slam_odom_fix_subscriber = rospy.Subscriber(
+                "/odom_fix", Odometry, self.get_slam_location)
 
         # publishers
         self._robot_twist_publisher = None
