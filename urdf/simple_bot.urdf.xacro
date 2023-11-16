@@ -66,18 +66,6 @@
     <axis xyz="0 0 1"/>
   </joint>
 
-
-
-
-
-
-
-
-
-
-
-
-
   <link name="lidar_link">
     <visual>
       <geometry>
@@ -87,7 +75,7 @@
   </link>
 
   <joint name="lidar_joint" type="fixed">
-    <origin xyz="0 0 0.2" rpy="0 0 3.1416"/>
+    <origin xyz="-0.25 0 -0.1" rpy="0 0 3.1416"/>
     <parent link="base_link"/>
     <child link="lidar_link"/>
   </joint>
