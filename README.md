@@ -33,6 +33,8 @@
 
 ```cd ~/catkin_ws/```
 
+```source ~/catkin_ws/devel/setup.bash```
+
 ```catkin_make```
 
 # launching
