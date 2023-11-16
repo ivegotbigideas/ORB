@@ -66,18 +66,6 @@
     <axis xyz="0 0 1"/>
   </joint>
 
-
-
-
-
-
-
-
-
-
-
-
-
   <link name="lidar_link">
     <visual>
       <geometry>
