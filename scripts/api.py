@@ -17,7 +17,9 @@ class Orb:
             "/gazebo/model_states", ModelStates
         )
         self._slam_map_subscriber = rospy.Subscriber("/map", OccupancyGrid)
-        self._slam_estimated_pose_subscriber = None
+        self._slam_odom_fix_subscriber = rospy.Subscriber(
+            "/odom_fix", Odometry, self.get_slam_location
+        )
 
         # publishers
         self._robot_twist_publisher = None
@@ -153,15 +155,36 @@ class Orb:
                     },
                 },
             },
-            "data": msg.data,
+            "data": msg.data,  # this is the map data itself
         }
         return occ_grid
 
-    def get_slam_location():
+    def get_slam_location(self, *callback_message):
         """
         This function should return the estimated pose of the robot
         """
-        pass
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/odom_fix", Odometry)
+        msg = msg[0].pose.pose
+
+        estimated_pose = {
+            'position': {
+                'x': msg.position.x,
+                'y': msg.position.y,
+                'z': msg.position.z
+            },
+            'orientation': {
+                'x': msg.orientation.x,
+                'y': msg.orientation.y,
+                'z': msg.orientation.z,
+                'w':msg.orientation.w
+            }
+        }
+        return estimated_pose
+
+
 
     def terminate_robot():
         """

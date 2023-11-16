@@ -30,4 +30,8 @@
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb)/rviz/config.rviz"/>
 
     <node name="rqt_graph" pkg="rqt_graph" type="rqt_graph" output="screen"/>
+
+    <node pkg="orb" type="api.py" name="api_node" output="screen"/>
+    <node pkg="orb" type="odometry_fix.py" name="odometry_fixer_node" output="screen"/>
+    <node pkg="orb" type="estimated_pose_publisher.py" name="estimated_pose_publisher_node" output="screen"/>
 </launch>
