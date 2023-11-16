@@ -27,6 +27,8 @@
 
 ```mv ~/catkin_ws/src/ORB/ ~/catkin_ws/src/orb/```
 
+```mkdir ~/catkin_ws/src/orb/worlds```
+
 ```cp /usr/share/gazebo-11/worlds/cafe.world /home/little/catkin_ws/src/orb/worlds/```
 
 ```cd ~/catkin_ws/```
