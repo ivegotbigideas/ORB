@@ -9,7 +9,7 @@ from cv_bridge import CvBridge, CvBridgeError
 class Orb():
     def __init__(self):
         # subscribers
-        self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image, self.get_latest_camera_data)
+        self._camera_subscriber = rospy.Subscriber("/camera/image_raw", Image)
         self._lidar_subscriber = None
         self._robot_ground_truth_subscriber = None
         self._slam_map_subscriber = None
@@ -19,10 +19,15 @@ class Orb():
         self._robot_twist_publisher = None
         self._robot_pose_publisher = None
 
-    def get_latest_camera_data(self, msg):
+    def get_latest_camera_data(self, *callback_message):
         """
         This function should return the latest camera data
         """
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/camera/image_raw", Image)
+        
         bridge = CvBridge()
         try:
             cv2 = bridge.imgmsg_to_cv2(msg, "rgb8")
