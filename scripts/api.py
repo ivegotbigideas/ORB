@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from sensor_msgs.msg import LaserScan
+from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
 
@@ -68,8 +68,11 @@ class Target():
         """
         pass
 
+rospy.init_node("bot_api")
 orb = Orb()
 target = Target()
 
 if __name__=="__main__":
     pass
+
+rospy.spin()
