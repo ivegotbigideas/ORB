@@ -7,6 +7,8 @@ from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
 from gazebo_msgs.msg import ModelStates
 
+# config
+orb_name = "simple_bot"
 
 class Orb:
     def __init__(self):
@@ -90,7 +92,6 @@ class Orb:
             msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
         msg = msg[0]
 
-        orb_name = "simple_bot"
         index = msg.name.index(orb_name)
         pose = msg.pose[index]
         pose = {
