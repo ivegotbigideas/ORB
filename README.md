@@ -22,6 +22,12 @@
 
 ```sudo apt-get install ros-noetic-gmapping```
 
+```sudo apt-get install ros-noetic-explore-lite```
+
+```sudo apt-get install ros-noetic-navigation #not sure this is necessary```
+
+```sudo apt-get install ros-noetic-move-base```
+
 ```cd ~/catkin_ws/src```
 
 ```git clone git@github.com:IRUOB/socspioneer.git```
