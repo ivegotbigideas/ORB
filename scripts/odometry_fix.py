@@ -2,6 +2,7 @@
 
 import rospy
 import tf
+import numpy as np
 from nav_msgs.msg import Odometry
 
 
@@ -14,7 +15,7 @@ def callback(msg):
     )
     euler = tf.transformations.euler_from_quaternion(quaternion)
     yaw = euler[2]
-    yaw += 3.14159
+    yaw += np.pi
     quaternion = tf.transformations.quaternion_from_euler(euler[0], euler[1], yaw)
 
     msg.pose.pose.orientation.x = quaternion[0]
