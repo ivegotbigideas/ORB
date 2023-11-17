@@ -211,8 +211,4 @@ class Target:
 rospy.init_node("bot_api")
 orb = Orb()
 target = Target()
-
-if __name__ == "__main__":
-    rospy.spin()
-
 rospy.spin()
