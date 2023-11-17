@@ -15,6 +15,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 # config
 orb_name = "simple_bot"
 
+
 class Orb:
     def __init__(self):
         # subscribers
@@ -95,7 +96,7 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
-        try: # prevents an issue when this function is called from randomise_robot_pose
+        try:  # prevents an issue when this function is called from randomise_robot_pose
             msg = msg[0]
         except:
             pass
@@ -126,21 +127,23 @@ class Orb:
 
     def randomise_robot_pose(self):
         """
-        This function should put the robot in a random valid pose
+        This function should put the robot in a random valid pose. This will be utilised for training the MDP for exploration.
         """
-        rospy.wait_for_service('/gazebo/set_model_state')
+        rospy.wait_for_service("/gazebo/set_model_state")
 
         msg = ModelState()
         msg.model_name = orb_name
-        msg.pose.position.x = random.uniform(-5,5)
-        msg.pose.position.y = random.uniform(-5,5)
+        msg.pose.position.x = random.uniform(-5, 5)
+        msg.pose.position.y = random.uniform(-5, 5)
         msg.pose.position.z = 1
 
         current_quat_dict = self.get_ground_truth_robot_pose()["orientation"]
-        current_quat = (current_quat_dict['x'], 
-                        current_quat_dict['y'], 
-                        current_quat_dict['z'], 
-                        current_quat_dict['w'])
+        current_quat = (
+            current_quat_dict["x"],
+            current_quat_dict["y"],
+            current_quat_dict["z"],
+            current_quat_dict["w"],
+        )
 
         euler = tf.transformations.euler_from_quaternion(current_quat)
         new_yaw = euler[2] + random.uniform(-np.pi, np.pi)
@@ -150,7 +153,7 @@ class Orb:
         msg.pose.orientation.z = new_quat[2]
         msg.pose.orientation.w = new_quat[3]
 
-        rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)(msg)
+        rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)(msg)
 
     def get_latest_slam_map(self, *callback_message):
         """
