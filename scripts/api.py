@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
 import rospy
+import tf
+import random
+import numpy as np
+import time
 from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
-from gazebo_msgs.msg import ModelStates
+from gazebo_msgs.srv import SetModelState
+from gazebo_msgs.msg import ModelStates, ModelState
 
 # config
 orb_name = "simple_bot"
@@ -90,7 +95,10 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
-        msg = msg[0]
+        try: # prevents an issue when this function is called from randomise_robot_pose
+            msg = msg[0]
+        except:
+            pass
 
         index = msg.name.index(orb_name)
         pose = msg.pose[index]
@@ -116,11 +124,33 @@ class Orb:
         """
         pass
 
-    def randomise_robot_pose():
+    def randomise_robot_pose(self):
         """
-        This function should put the robot in a random pose
+        This function should put the robot in a random valid pose
         """
-        pass
+        rospy.wait_for_service('/gazebo/set_model_state')
+
+        msg = ModelState()
+        msg.model_name = orb_name
+        msg.pose.position.x = random.uniform(-5,5)
+        msg.pose.position.y = random.uniform(-5,5)
+        msg.pose.position.z = 1
+
+        current_quat_dict = self.get_ground_truth_robot_pose()["orientation"]
+        current_quat = (current_quat_dict['x'], 
+                        current_quat_dict['y'], 
+                        current_quat_dict['z'], 
+                        current_quat_dict['w'])
+
+        euler = tf.transformations.euler_from_quaternion(current_quat)
+        new_yaw = euler[2] + random.uniform(-np.pi, np.pi)
+        new_quat = tf.transformations.quaternion_from_euler(euler[0], euler[1], new_yaw)
+        msg.pose.orientation.x = new_quat[0]
+        msg.pose.orientation.y = new_quat[1]
+        msg.pose.orientation.z = new_quat[2]
+        msg.pose.orientation.w = new_quat[3]
+
+        rospy.ServiceProxy('/gazebo/set_model_state', SetModelState)(msg)
 
     def get_latest_slam_map(self, *callback_message):
         """
