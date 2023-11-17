@@ -1,3 +1,6 @@
+# python version
+3.8.10
+
 # installation
 ```source /opt/ros/noetic/setup.bash```
 
