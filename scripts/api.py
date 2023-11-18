@@ -269,9 +269,4 @@ def randomise_pose(obj_name):
 rospy.init_node("bot_api")
 orb = Orb()
 target = Target()
-time.sleep(5)
-while True:
-    time.sleep(2)
-    orb.randomise_robot_pose()
-    target.randomise_target_pose()
 rospy.spin()
