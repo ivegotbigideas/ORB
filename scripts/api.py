@@ -7,7 +7,7 @@ import numpy as np
 import time
 from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
-from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped, Quaternion
+from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
 from gazebo_msgs.srv import SetModelState
 from gazebo_msgs.msg import ModelStates, ModelState
@@ -37,7 +37,7 @@ class Orb:
             )
 
         # publishers
-        self._robot_twist_publisher = None
+        self._robot_twist_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self._robot_pose_publisher = None
 
     def get_latest_camera_data(self, *callback_message):
@@ -118,12 +118,26 @@ class Orb:
         }
         return pose
 
-    def move_robot():
+    def move_robot(self, dir):
         """
         This function should take a direction (f, b, cw, acw) as an input
         and then move the robot in that direction
         """
-        pass
+        msg = Twist()
+
+        if dir == "f":
+            msg.linear.x = 1.0
+        elif dir == "b":
+            msg.linear.x = -1.0
+        elif dir == "cw":
+            msg.angular.z = -1.0
+        elif dir == "acw":
+            msg.angular.z = 1.0
+        elif dir == "stop":
+            msg.linear.x = 0.0
+            msg.angular.z = 0.0
+
+        self._robot_twist_publisher.publish(msg)
 
     def randomise_robot_pose(self):
         """
