@@ -18,6 +18,9 @@ orb_name = "simple_bot"
 
 class Orb:
     def __init__(self):
+        # state
+        self.robot_state = "searching" # searching, converging or terminated
+
         # subscribers
         if False:  # debug
             self._camera_subscriber = rospy.Subscriber(
@@ -224,11 +227,11 @@ class Orb:
         }
         return estimated_pose
 
-    def terminate_robot():
+    def set_robot_state(self, state):
         """
-        This function should put the robot in the terminal state
+        This function should put the robot in the provided state
         """
-        pass
+        self.robot_state = state
 
 
 class Target:
