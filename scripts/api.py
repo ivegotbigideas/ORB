@@ -15,6 +15,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 # config
 orb_name = "simple_bot"
 target_name = "pink_box"
+debug = False
 
 
 class Orb:
@@ -23,7 +24,7 @@ class Orb:
         self.robot_state = "searching" # searching, converging or terminated
 
         # subscribers
-        if False:  # debug
+        if debug:  # debug
             self._camera_subscriber = rospy.Subscriber(
                 "/camera/image_raw", Image, self.get_latest_camera_data
             )
