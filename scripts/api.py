@@ -132,20 +132,7 @@ class Orb:
         """
         This function should put the robot in a random valid pose. This will be utilised for training the MDP for exploration.
         """
-        msg = ModelState()
-        msg.model_name = orb_name
-        msg.pose.position.x = random.uniform(-5, 5) # tweak these limits
-        msg.pose.position.y = random.uniform(-5, 5) # teak these limits
-        msg.pose.position.z = 1
-
-        new_yaw = random.uniform(-np.pi, np.pi)
-        new_quat = tf.transformations.quaternion_from_euler(0, 0, new_yaw)
-        msg.pose.orientation.x = new_quat[0]
-        msg.pose.orientation.y = new_quat[1]
-        msg.pose.orientation.z = new_quat[2]
-        msg.pose.orientation.w = new_quat[3]
-
-        rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)(msg)
+        randomise_pose(orb_name)
 
     def get_latest_slam_map(self, *callback_message):
         """
@@ -236,11 +223,11 @@ class Target:
         return get_true_pose(msg, target_name)
 
 
-    def randomise_target_pose():
+    def randomise_target_pose(self):
         """
-        Randomise
+        Randomise target pose
         """
-        pass
+        randomise_pose(target_name)
 
 def get_true_pose(model_states_msg, obj_name):
     """
@@ -263,8 +250,28 @@ def get_true_pose(model_states_msg, obj_name):
     }
     return pose
 
+def randomise_pose(obj_name):
+    msg = ModelState()
+    msg.model_name = obj_name
+    msg.pose.position.x = random.uniform(-5, 5) # tweak these limits
+    msg.pose.position.y = random.uniform(-5, 5) # teak these limits
+    msg.pose.position.z = 1
+
+    new_yaw = random.uniform(-np.pi, np.pi)
+    new_quat = tf.transformations.quaternion_from_euler(0, 0, new_yaw)
+    msg.pose.orientation.x = new_quat[0]
+    msg.pose.orientation.y = new_quat[1]
+    msg.pose.orientation.z = new_quat[2]
+    msg.pose.orientation.w = new_quat[3]
+
+    rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)(msg)
 
 rospy.init_node("bot_api")
 orb = Orb()
 target = Target()
+time.sleep(5)
+while True:
+    time.sleep(2)
+    orb.randomise_robot_pose()
+    target.randomise_target_pose()
 rospy.spin()
