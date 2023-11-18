@@ -14,6 +14,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 
 # config
 orb_name = "simple_bot"
+target_name = "pink_box"
 
 
 class Orb:
@@ -104,22 +105,7 @@ class Orb:
         except:
             pass
 
-        index = msg.name.index(orb_name)
-        pose = msg.pose[index]
-        pose = {
-            "position": {
-                "x": pose.position.x,
-                "y": pose.position.y,
-                "z": pose.position.z,
-            },
-            "orientation": {
-                "x": pose.orientation.x,
-                "y": pose.orientation.y,
-                "z": pose.orientation.z,
-                "w": pose.orientation.w,
-            },
-        }
-        return pose
+        return get_true_pose(msg, orb_name)
 
     def move_robot(self, dir):
         """
@@ -235,17 +221,47 @@ class Orb:
 
 
 class Target:
-    def get_ground_truth_target_pose():
+    def get_ground_truth_target_pose(self, *callback_message):
         """
         Returns the true location of the target
         """
-        pass
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
+        try:  # prevents an issue when this function is called from randomise_target_pose. Idk tbh.
+            msg = msg[0]
+        except:
+            pass
+        return get_true_pose(msg, target_name)
+
 
     def randomise_target_pose():
         """
         Randomise
         """
         pass
+
+def get_true_pose(model_states_msg, obj_name):
+    """
+    Gets the true pose of a specified object name
+    """
+    index = model_states_msg.name.index(obj_name)
+    pose = model_states_msg.pose[index]
+    pose = {
+        "position": {
+            "x": pose.position.x,
+            "y": pose.position.y,
+            "z": pose.position.z,
+        },
+        "orientation": {
+            "x": pose.orientation.x,
+            "y": pose.orientation.y,
+            "z": pose.orientation.z,
+            "w": pose.orientation.w,
+        },
+    }
+    return pose
 
 
 rospy.init_node("bot_api")
