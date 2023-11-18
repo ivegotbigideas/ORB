@@ -133,21 +133,12 @@ class Orb:
 
         msg = ModelState()
         msg.model_name = orb_name
-        msg.pose.position.x = random.uniform(-5, 5)
-        msg.pose.position.y = random.uniform(-5, 5)
+        msg.pose.position.x = random.uniform(-5, 5) # tweak these limits
+        msg.pose.position.y = random.uniform(-5, 5) # teak these limits
         msg.pose.position.z = 1
 
-        current_quat_dict = self.get_ground_truth_robot_pose()["orientation"]
-        current_quat = (
-            current_quat_dict["x"],
-            current_quat_dict["y"],
-            current_quat_dict["z"],
-            current_quat_dict["w"],
-        )
-
-        euler = tf.transformations.euler_from_quaternion(current_quat)
-        new_yaw = euler[2] + random.uniform(-np.pi, np.pi)
-        new_quat = tf.transformations.quaternion_from_euler(euler[0], euler[1], new_yaw)
+        new_yaw = random.uniform(-np.pi, np.pi)
+        new_quat = tf.transformations.quaternion_from_euler(0, 0, new_yaw)
         msg.pose.orientation.x = new_quat[0]
         msg.pose.orientation.y = new_quat[1]
         msg.pose.orientation.z = new_quat[2]
