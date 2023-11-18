@@ -38,7 +38,7 @@ class Orb:
 
         # publishers
         self._robot_twist_publisher = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
-        self._robot_pose_publisher = None
+        self._robot_model_state_publisher = rospy.Publisher("/gazebo/set_model_state", Twist, queue_size=10)
 
     def get_latest_camera_data(self, *callback_message):
         """
@@ -143,8 +143,6 @@ class Orb:
         """
         This function should put the robot in a random valid pose. This will be utilised for training the MDP for exploration.
         """
-        rospy.wait_for_service("/gazebo/set_model_state")
-
         msg = ModelState()
         msg.model_name = orb_name
         msg.pose.position.x = random.uniform(-5, 5) # tweak these limits
