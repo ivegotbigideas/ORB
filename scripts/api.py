@@ -96,7 +96,7 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/gazebo/model_states", ModelStates)
-        try:  # prevents an issue when this function is called from randomise_robot_pose
+        try:  # prevents an issue when this function is called from randomise_robot_pose. Idk tbh.
             msg = msg[0]
         except:
             pass
