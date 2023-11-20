@@ -5,6 +5,7 @@ import tf
 import random
 import numpy as np
 import time
+import os
 from sensor_msgs.msg import LaserScan, Image
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped, Quaternion
@@ -16,6 +17,8 @@ from gazebo_msgs.msg import ModelStates, ModelState
 orb_name = "simple_bot"
 target_name = "pink_box"
 debug = False
+if os.path.exists(".debug"):
+    debug = True
 
 
 class Orb:
