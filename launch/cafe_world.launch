@@ -24,7 +24,7 @@
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen"/>
 
-    <include file="$(find socspioneer)/launch/keyboard_teleop.launch"/>
+    <!-- <include file="$(find socspioneer)/launch/keyboard_teleop.launch"/> -->
 
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen" args="scan:=base_scan">
         <param name="base_frame" value="base_link"/>
@@ -42,13 +42,15 @@
     <node pkg="orb" type="estimated_pose_publisher.py" name="estimated_pose_publisher_node" output="screen"/>
 
     <!--Exploration stuff-->
-    <!-- <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+    <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
         <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
         <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
         <rosparam file="$(find orb)/config/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find orb)/config/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find orb)/config/base_local_planner_params.yaml" command="load" />
     </node>
-    <node pkg="explore_lite" type="explore" name="explore" output="screen"/> -->
+    <node pkg="explore_lite" type="explore" name="explore" output="screen">
+        <param name="costmap_topic" value="map"/>
+    </node>
 
 </launch>
