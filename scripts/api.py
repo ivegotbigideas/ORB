@@ -260,8 +260,8 @@ def get_true_pose(model_states_msg, obj_name):
 def randomise_pose(obj_name):
     msg = ModelState()
     msg.model_name = obj_name
-    msg.pose.position.x = random.uniform(-5, 5)  # tweak these limits
-    msg.pose.position.y = random.uniform(-5, 5)  # teak these limits
+    msg.pose.position.x = random.uniform(-4.2, 4.2)  # tweak these limits
+    msg.pose.position.y = random.uniform(-9, 9)  # teak these limits
     msg.pose.position.z = 1
 
     new_yaw = random.uniform(-np.pi, np.pi)
@@ -277,4 +277,8 @@ def randomise_pose(obj_name):
 rospy.init_node("bot_api")
 orb = Orb()
 target = Target()
+time.sleep(5)
+while True:
+    orb.randomise_robot_pose()
+    time.sleep(2)
 rospy.spin()
