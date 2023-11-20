@@ -261,7 +261,7 @@ def randomise_pose(obj_name):
     msg = ModelState()
     msg.model_name = obj_name
     msg.pose.position.x = random.uniform(-4.2, 4.2)  # tweak these limits
-    msg.pose.position.y = random.uniform(-9, 9)  # teak these limits
+    msg.pose.position.y = random.uniform(-9, 9)  # tweak these limits
     msg.pose.position.z = 1
 
     new_yaw = random.uniform(-np.pi, np.pi)
