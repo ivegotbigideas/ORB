@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<robot name="pink_box" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <material name="pink">
+    <color rgba="1 0.4 0.7 1"/>
+  </material>
+  <link name="box_link">
+    <visual>
+      <geometry>
+        <box size="0.3 0.3 0.3"/>
+      </geometry>
+      <material name="pink"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.3 0.3 0.3"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1.0"/>
+      <inertia
+        ixx="0.083" ixy="0" ixz="0"
+        iyy="0.083" iyz="0"
+        izz="0.083"/>
+    </inertial>
+  </link>
+</robot>
