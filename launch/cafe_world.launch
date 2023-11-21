@@ -41,13 +41,13 @@
     <node pkg="orb" type="estimated_pose_publisher.py" name="estimated_pose_publisher_node" output="screen"/>
 
     <!--Exploration stuff-->
-    <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+    <!-- <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
         <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
         <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
         <rosparam file="$(find orb)/config/local_costmap_params.yaml" command="load" />
         <rosparam file="$(find orb)/config/global_costmap_params.yaml" command="load" />
         <rosparam file="$(find orb)/config/base_local_planner_params.yaml" command="load" />
     </node>
-    <include file="$(find explore_lite)/launch/explore.launch"/>
+    <include file="$(find explore_lite)/launch/explore.launch"/> -->
 
 </launch>
