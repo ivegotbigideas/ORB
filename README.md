@@ -31,12 +31,37 @@
 
 ```cp /usr/share/gazebo-11/worlds/cafe.world /home/little/catkin_ws/src/orb/worlds/```
 
+# install openai_ros
+
+```cd ~/catkin_ws```
+
+```git clone https://github.com/edowson/openai_ros.git```
+
+```cd src/openai_ros/openai_ros```
+
+edit line in ```package.xml``` from ```<build_depend>python-catkin-pkg</build_depend>``` to ```<build_depend>python3-catkin-pkg</build_depend>```
+
+# make workspace
+
 ```cd ~/catkin_ws/```
 
 ```catkin_make```
 
 ```source ~/catkin_ws/devel/setup.bash```
 
+# install dependencies
+
+```rosdep install openai_ros```
+
+# install pytorch
+
+```pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118```
+
+```pip install tensordict==0.2.0```
+
+```pip install torchrl==0.2.0```
+
 # launching
 
 ```roslaunch orb cafe_world.launch```
+
