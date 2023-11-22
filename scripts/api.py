@@ -66,6 +66,19 @@ class Orb:
         except CvBridgeError as e:
             print(e)
 
+    def get_latest_cam_depth_data(self, *callback_message):
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/camera/depth/image_raw", Image)
+
+        bridge = CvBridge()
+        try:
+            cv_image = bridge.imgmsg_to_cv2(msg, "32FC1")
+            return cv_image
+        except CvBridgeError as e:
+            print(e)
+
     def get_latest_lidar_data(self, *callback_message):
         """
         This function should return the latest lidar scanner data
