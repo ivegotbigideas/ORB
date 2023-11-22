@@ -1,3 +1,4 @@
 worlds/cafe.world
 .debug
 *.pyc
+*.png
