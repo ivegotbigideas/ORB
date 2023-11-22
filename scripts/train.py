@@ -75,10 +75,6 @@ print(f"{next_state.shape},\n {reward},\n {done},\n {info}")
 # We use **Wrappers** to preprocess environment data before sending it to
 # the agent.
 #
-# ``ResizeObservation`` downsamples each observation into a square image.
-# The new size of each observation is: ``[3, 84, 84]`` (84 x 84 is the new
-# width and height, and 3 is for the RGB values).
-#
 # ``SkipFrame`` is a custom wrapper that inherits from ``gym.Wrapper`` and
 # implements the ``step()`` function. Because consecutive frames don’t
 # vary much, we can skip n-intermediate frames without losing much
@@ -105,28 +101,8 @@ class SkipFrame(gym.Wrapper):
         return obs, total_reward, done, trunk, info
 
 
-class ResizeObservation(gym.ObservationWrapper):
-    def __init__(self, env, shape):
-        super().__init__(env)
-        if isinstance(shape, int):
-            self.shape = (shape, shape)
-        else:
-            self.shape = tuple(shape)
-
-        obs_shape = self.shape + self.observation_space.shape[2:]
-        self.observation_space = Box(low=0, high=255, shape=obs_shape, dtype=np.uint8)
-
-    def observation(self, observation):
-        transforms = T.Compose(
-            [T.Resize(self.shape, antialias=True), T.Normalize(0, 255)]
-        )
-        observation = transforms(observation).squeeze(0)
-        return observation
-
-
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
-env = ResizeObservation(env, shape=84)
 
 
 ######################################################################
@@ -601,6 +577,7 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
+# TODO figure out length of observation array for the state dimensions
 bot = Bot(state_dim=(3, 84, 84), action_dim=env.action_space.n, save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
