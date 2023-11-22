@@ -4,7 +4,7 @@ import cv2
 
 orb = Orb()
 target = Target()
-rospy.init_node("image_toolkit")
+rospy.init_node("target_location_detector")
 
 def detect_target():
     image_cv2_bgr = cv2.cvtColor(orb.get_latest_camera_data(), cv2.COLOR_RGB2BGR)
@@ -44,7 +44,7 @@ while True:
             move_robot(None)
         else:
             center = find_center_of_target(x, y, width, height)
-            move_robot(center[0])
+            marker_dist = orb.get_latest_cam_depth_data()[center[0], center[1]]
     except Exception as e:
         print(e)
 
