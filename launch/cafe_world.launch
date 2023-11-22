@@ -1,10 +1,6 @@
 <launch>
-    <!-- We assume that your world file and URDF file are properly set up in their directories -->
-
-    <!-- Load the Gazebo world -->
     <arg name="world_file" default="$(find orb)/worlds/cafe.world"/>
   
-    <!-- Start Gazebo with the cafe world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_file)"/>
         <arg name="paused" value="false"/>
@@ -14,30 +10,44 @@
         <arg name="debug" value="false"/>
     </include>
 
-    <!-- Load robot description parameter -->
     <param name="robot_description"
         command="$(find xacro)/xacro --inorder '$(find orb)/urdf/simple_bot.urdf.xacro'" />
 
-    <!-- Spawn the robot into Gazebo -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+    <param name="pink_box_description"
+        command="$(find xacro)/xacro --inorder '$(find orb)/urdf/pink_box.urdf.xacro'" />
+
+    <node name="robot_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model simple_bot -z 1 -param robot_description"/>
+
+    <node name="box_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-urdf -model pink_box -x 4 -z 4 -param pink_box_description"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen"/>
 
-    <!-- Include keyboard_telop -->
-    <include file="$(find socspioneer)/launch/keyboard_teleop.launch"/>
+    <!-- <include file="$(find socspioneer)/launch/keyboard_teleop.launch"/> -->
 
-    <!-- SLAM Gmapping -->
     <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping" output="screen" args="scan:=base_scan">
         <param name="base_frame" value="base_link"/>
         <param name="odom_frame" value="odom"/>
 	    <param name="map_frame" value="map"/>
-        <param name="transform_publish_period" value="0.08"/>
     </node>
 
-    <!-- RViz -->
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find orb)/rviz/config.rviz"/>
 
-    <!-- RQT graph -->
     <node name="rqt_graph" pkg="rqt_graph" type="rqt_graph" output="screen"/>
+
+    <node pkg="orb" type="api.py" name="api_node" output="screen"/>
+    <node pkg="orb" type="odometry_fix.py" name="odometry_fixer_node" output="screen"/>
+    <node pkg="orb" type="estimated_pose_publisher.py" name="estimated_pose_publisher_node" output="screen"/>
+
+    <!--Exploration stuff-->
+    <!-- <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">
+        <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="global_costmap" />
+        <rosparam file="$(find orb)/config/costmap_common_params.yaml" command="load" ns="local_costmap" />
+        <rosparam file="$(find orb)/config/local_costmap_params.yaml" command="load" />
+        <rosparam file="$(find orb)/config/global_costmap_params.yaml" command="load" />
+        <rosparam file="$(find orb)/config/base_local_planner_params.yaml" command="load" />
+    </node>
+    <include file="$(find explore_lite)/launch/explore.launch"/> -->
+
 </launch>
