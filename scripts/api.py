@@ -274,7 +274,8 @@ def randomise_pose(obj_name):
     rospy.ServiceProxy("/gazebo/set_model_state", SetModelState)(msg)
 
 
-rospy.init_node("bot_api")
-orb = Orb()
-target = Target()
-rospy.spin()
+if __name__ == "__main__":
+    orb = Orb()
+    target = Target()
+    rospy.init_node("bot_api")
+    rospy.spin()
