@@ -17,10 +17,10 @@
         command="$(find xacro)/xacro --inorder '$(find orb)/urdf/pink_box.urdf.xacro'" />
 
     <node name="robot_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model simple_bot -z 1 -param robot_description"/>
+        args="-urdf -model simple_bot -z 0.1 -param robot_description"/>
 
     <node name="box_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model pink_box -x 4 -z 4 -param pink_box_description"/>
+        args="-urdf -model pink_box -x 4 -z 0.1 -param pink_box_description"/>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" output="screen"/>
 
