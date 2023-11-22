@@ -1,14 +1,10 @@
 <?xml version="1.0"?>
 <robot name="pink_box" xmlns:xacro="http://www.ros.org/wiki/xacro">
-  <material name="pink">
-    <color rgba="1 0.4 0.7 1"/>
-  </material>
   <link name="box_link">
     <visual>
       <geometry>
         <box size="0.3 0.3 0.3"/>
       </geometry>
-      <material name="pink"/>
     </visual>
     <collision>
       <geometry>
@@ -23,4 +19,13 @@
         izz="0.083"/>
     </inertial>
   </link>
+  <gazebo reference="box_link">
+    <visual>
+      <material>
+        <ambient>1 0.4 0.6 1</ambient>
+        <diffuse>1 0 0.6 1</diffuse>
+        <specular>1 0.5 0.7 1</specular>
+      </material>
+    </visual>
+</gazebo>
 </robot>
