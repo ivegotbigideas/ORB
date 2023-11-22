@@ -6,7 +6,7 @@ import random
 import numpy as np
 import time
 import os
-from sensor_msgs.msg import LaserScan, Image
+from sensor_msgs.msg import LaserScan, Image, CameraInfo
 from nav_msgs.msg import OccupancyGrid, Odometry
 from geometry_msgs.msg import Twist, PoseStamped, PoseWithCovarianceStamped, Quaternion
 from cv_bridge import CvBridge, CvBridgeError
@@ -49,6 +49,19 @@ class Orb:
         self._robot_model_state_publisher = rospy.Publisher(
             "/gazebo/set_model_state", ModelState, queue_size=10
         )
+
+    def get_camera_info(self, *callback_message):
+        if callback_message:
+            msg = callback_message
+        else:
+            msg = rospy.wait_for_message("/camera/depth/camera_info", CameraInfo)
+        msg = msg.K
+
+        focal_length_x = msg[0]
+        focal_length_y = msg[4]
+        principal_point_x = msg[2]
+        principal_point_y = msg[5]
+        return focal_length_x, focal_length_y, principal_point_x, principal_point_y
 
     def get_latest_camera_data(self, *callback_message):
         """
@@ -206,7 +219,10 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/odom_fix", Odometry)
-        msg = msg[0].pose.pose
+        try:
+            msg = msg[0].pose.pose
+        except:
+            msg = msg.pose.pose
 
         estimated_pose = {
             "position": {"x": msg.position.x, "y": msg.position.y, "z": msg.position.z},
