@@ -91,11 +91,11 @@ def determine_marker_loc(center_x, center_y, depth):
 
 while True:
     try:
-        x, y, width, height = detect_target() # check
+        x, y, width, height = detect_target() # fine
         if x == None:
             pass
         else:
-            center = find_center_of_target(x, y, width, height)
+            center = find_center_of_target(x, y, width, height) # fine
             depth = orb.get_latest_cam_depth_data()[center[1], center[0]]
             determine_marker_loc(center[0], center[1], depth)
     except Exception as e:
