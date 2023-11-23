@@ -56,7 +56,7 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 #
 
 # Initialize bot environment
-env = BotEnv()
+env = bot_env.BotEnv()
 
 env.reset()
 next_state, reward, done, trunc, info = env.step(action=0)
