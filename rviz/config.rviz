@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /Pose1
-        - /MarkerArray1/Status1
+        - /Marker1
       Splitter Ratio: 0.5
     Tree Height: 619
   - Class: rviz/Selection
@@ -96,7 +96,15 @@ Visualization Manager:
       Marker Topic: /explore/frontiers
       Name: MarkerArray
       Namespaces:
-        frontiers: true
+        {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /target_marker
+      Name: Marker
+      Namespaces:
+        "": true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -165,5 +173,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 2560
-  X: 72
-  Y: 27
+  X: 0
+  Y: 0
