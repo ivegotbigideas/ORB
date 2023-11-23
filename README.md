@@ -1,3 +1,6 @@
+# python version
+3.8.10
+
 # installation
 ```source /opt/ros/noetic/setup.bash```
 
@@ -18,6 +21,12 @@
 ```sudo apt-get install ros-noetic-pr2-teleop```
 
 ```sudo apt-get install ros-noetic-gmapping```
+
+```sudo apt-get install ros-noetic-explore-lite```
+
+```sudo apt-get install ros-noetic-navigation #not sure this is necessary```
+
+```sudo apt-get install ros-noetic-move-base```
 
 ```cd ~/catkin_ws/src```
 
