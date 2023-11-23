@@ -13,8 +13,7 @@ import random, datetime, os
 
 # Gym is an OpenAI toolkit for RL
 import gymnasium as gym
-from gym.spaces import Box
-from gym.wrappers import FrameStack
+from gymnasium.wrappers import FrameStack
 
 # Our bot environment, built with the openai_ros package
 import bot_env
@@ -577,8 +576,7 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-# TODO figure out length of observation array for the state dimensions
-bot = Bot(state_dim=(3, 84, 84), action_dim=env.action_space.n, save_dir=save_dir)
+bot = Bot(state_dim=922600, action_dim=5, save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
 

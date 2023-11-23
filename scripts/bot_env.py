@@ -82,7 +82,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         
         for i in map_list:
             if i == 1:
-                next_grid_squares ++
+                next_grid_squares += 1
         
         if next_grid_squares > self.grid_squares:
             self.grid_squares = next_grid_squares
@@ -96,7 +96,18 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         Applies the given action to the simulation.
         """
-        self.bot_api.move_robot(action)
+        if action == 0:
+            act_string = "f"
+        elif action == 1:
+            act_string = "b"
+        elif action == 2:
+            act_string = "cw"
+        elif action == 3:
+            act_string = "acw"
+        else:
+            act_string = "stop"
+        
+        self.bot_api.move_robot(act_string)
 
     def _get_obs(self):
         camera_data = self.bot_api.get_latest_camera_data()
@@ -111,7 +122,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         Checks if episode done based on observations given.
         """
-        self.steps ++
+        self.steps += 1
         return self.steps >= 1000 or self._is_touching_target()
 
     # Methods that the TrainingEnvironment will need.
