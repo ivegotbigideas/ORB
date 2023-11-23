@@ -42,11 +42,11 @@
 
 # install openai_ros
 
-```cd ~/catkin_ws```
+```cd ~/catkin_ws/src```
 
 ```git clone https://github.com/edowson/openai_ros.git```
 
-```cd src/openai_ros/openai_ros```
+```cd ~/catkin_ws/src/openai_ros/openai_ros```
 
 edit line in ```package.xml``` from ```<build_depend>python-catkin-pkg</build_depend>``` to ```<build_depend>python3-catkin-pkg</build_depend>```
 
