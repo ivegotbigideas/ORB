@@ -18,7 +18,8 @@ git clone git@github.com:ivegotbigideas/ORB.git
 mv ~/catkin_ws/src/ORB/ ~/catkin_ws/src/orb/
 mkdir ~/catkin_ws/src/orb/worlds
 cp /usr/share/gazebo-11/worlds/cafe.world /home/little/catkin_ws/src/orb/worlds/
-git clone https://github.com/edowson/openai_ros.git
+git clone git@github.com:ivegotbigideas/msc_ir_openai_ros.git
+mv msc_ir_openai_ros openai_ros
 sed -i -e 's/python-catkin-pkg/python3-catkin-pkg/g' openai_ros/openai_ros/package.xml
 cd ~/catkin_ws/
 catkin_make
