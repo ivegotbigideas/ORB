@@ -70,6 +70,10 @@ edit line in ```package.xml``` from ```<build_depend>python-catkin-pkg</build_de
 
 ```pip install torchrl==0.2.0```
 
+```pip install gymnasium```
+
+```pip install gym```
+
 # launching
 
 ```roslaunch orb cafe_world.launch```

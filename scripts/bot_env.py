@@ -6,7 +6,8 @@ import math
 import numpy as np
 from openai_ros import robot_gazebo_env
 import api
-
+from api import Orb, Target
+import rospy
 
 class BotEnv(robot_gazebo_env.RobotGazeboEnv):
     """
@@ -21,11 +22,12 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
 
         # TODO Not sure what these are for
         # Internal Vars
-        self.controllers_list = ['my_robot_controller']
+        print("START init bot_env")
+        self.controllers_list = []
 
-        self.robot_name_space = "my_robot_namespace"
+        self.robot_name_space = ""
 
-        reset_controls_bool = True
+        reset_controls_bool = False
         
         # We launch the init function of the Parent Class robot_gazebo_env.RobotGazeboEnv
         
@@ -38,6 +40,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         
         self.steps = 0
         self.grid_squares = 0
+        print("END init bot_env")
 
     # Methods needed by the RobotGazeboEnv
     # ----------------------------

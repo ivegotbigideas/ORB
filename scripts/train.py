@@ -9,7 +9,7 @@ from PIL import Image
 import numpy as np
 from pathlib import Path
 from collections import deque
-import random, datetime, os
+import random, datetime, os, rospy
 
 # Gym is an OpenAI toolkit for RL
 import gymnasium as gym
@@ -20,6 +20,8 @@ import bot_env
 
 from tensordict import TensorDict
 from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
+
+rospy.init_node("trainer")
 
 ######################################################################
 # RL Definitions
@@ -59,7 +61,7 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 env = bot_env.BotEnv()
 
 env.reset()
-next_state, reward, done, trunc, info = env.step(action=0)
+next_state, reward, done, info = env.step(action=0)
 print(f"{next_state.shape},\n {reward},\n {done},\n {info}")
 
 
@@ -409,16 +411,9 @@ class BotNet(nn.Module):
 
     def __init__(self, input_dim, output_dim):
         super().__init__()
-        c, h, w = input_dim
+        self.online = self.__build_cnn(input_dim, output_dim)
 
-        if h != 84:
-            raise ValueError(f"Expecting input height: 84, got: {h}")
-        if w != 84:
-            raise ValueError(f"Expecting input width: 84, got: {w}")
-
-        self.online = self.__build_cnn(c, output_dim)
-
-        self.target = self.__build_cnn(c, output_dim)
+        self.target = self.__build_cnn(input_dim, output_dim)
         self.target.load_state_dict(self.online.state_dict())
 
         # Q_target parameters are frozen.
@@ -576,7 +571,7 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-bot = Bot(state_dim=922600, action_dim=5, save_dir=save_dir)
+bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
 
@@ -592,7 +587,7 @@ for e in range(episodes):
         action = bot.act(state)
 
         # Agent performs action
-        next_state, reward, done, trunc, info = env.step(action)
+        next_state, reward, done, info = env.step(action)
 
         # Remember
         bot.cache(state, next_state, action, reward, done)

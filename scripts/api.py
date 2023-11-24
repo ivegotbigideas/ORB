@@ -74,7 +74,10 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/base_scan", LaserScan)
-        msg = msg[0]
+        try: # fixes an error that occurs when this is called from elsewhere idk
+            msg = msg[0]
+        except:
+            pass
 
         laser_data = {
             "header": {
@@ -148,7 +151,10 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/map", OccupancyGrid)
-        msg = msg[0]
+        try:
+            msg = msg[0]
+        except:
+            pass
 
         occ_grid = {
             "header": {
@@ -262,7 +268,7 @@ def randomise_pose(obj_name):
     msg.model_name = obj_name
     msg.pose.position.x = random.uniform(-4.2, 4.2)  # tweak these limits
     msg.pose.position.y = random.uniform(-9, 9)  # tweak these limits
-    msg.pose.position.z = 1
+    msg.pose.position.z = 0.1
 
     new_yaw = random.uniform(-np.pi, np.pi)
     new_quat = tf.transformations.quaternion_from_euler(0, 0, new_yaw)
