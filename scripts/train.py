@@ -12,7 +12,7 @@ from collections import deque
 import random, datetime, os, rospy
 
 # Gym is an OpenAI toolkit for RL
-import gymnasium as gym
+import gym
 from gymnasium.wrappers import FrameStack
 
 # Our bot environment, built with the openai_ros package
@@ -62,7 +62,7 @@ env = bot_env.BotEnv()
 
 env.reset()
 next_state, reward, done, info = env.step(action=0)
-print(f"{next_state.shape},\n {reward},\n {done},\n {info}")
+# print(f"{next_state.shape},\n {reward},\n {done},\n {info}")
 
 
 ######################################################################
@@ -95,15 +95,15 @@ class SkipFrame(gym.Wrapper):
         total_reward = 0.0
         for i in range(self._skip):
             # Accumulate reward and repeat the same action
-            obs, reward, done, trunk, info = self.env.step(action)
+            obs, reward, done, info = self.env.step(action)
             total_reward += reward
             if done:
                 break
-        return obs, total_reward, done, trunk, info
+        return obs, total_reward, done, info
 
 
 # Apply Wrappers to environment
-env = SkipFrame(env, skip=4)
+env = SkipFrame(env, skip=10)
 
 
 ######################################################################
@@ -142,19 +142,20 @@ class Bot:
         self.curr_step = 0
 
         self.save_every = 5e5  # no. of experiences between saving BotNet
-        
-        self.memory = TensorDictReplayBuffer(storage=LazyMemmapStorage(100000, device=torch.device("cpu")))
+
+        self.memory = TensorDictReplayBuffer(
+            storage=LazyMemmapStorage(100000, device=torch.device("cpu"))
+        )
         self.batch_size = 32
-        
+
         self.gamma = 0.9
-        
+
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.00025)
         self.loss_fn = torch.nn.SmoothL1Loss()
-        
+
         self.burnin = 1e4  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
-
 
     ######################################################################
     # Act
@@ -183,7 +184,9 @@ class Bot:
 
         # EXPLOIT
         else:
-            state = state[0].__array__() if isinstance(state, tuple) else state.__array__()
+            state = (
+                state[0].__array__() if isinstance(state, tuple) else state.__array__()
+            )
             state = torch.tensor(state, device=self.device).unsqueeze(0)
             action_values = self.net(state, model="online")
             action_idx = torch.argmax(action_values, axis=1).item()
@@ -195,7 +198,6 @@ class Bot:
         # increment step
         self.curr_step += 1
         return action_idx
-
 
     ######################################################################
     # Cache and Recall
@@ -223,8 +225,10 @@ class Bot:
         reward (``float``),
         done(``bool``))
         """
+
         def first_if_tuple(x):
             return x[0] if isinstance(x, tuple) else x
+
         state = first_if_tuple(state).__array__()
         next_state = first_if_tuple(next_state).__array__()
 
@@ -235,16 +239,29 @@ class Bot:
         done = torch.tensor([done])
 
         # self.memory.append((state, next_state, action, reward, done,))
-        self.memory.add(TensorDict({"state": state, "next_state": next_state, "action": action, "reward": reward, "done": done}, batch_size=[]))
+        self.memory.add(
+            TensorDict(
+                {
+                    "state": state,
+                    "next_state": next_state,
+                    "action": action,
+                    "reward": reward,
+                    "done": done,
+                },
+                batch_size=[],
+            )
+        )
 
     def recall(self):
         """
         Retrieve a batch of experiences from memory
         """
         batch = self.memory.sample(self.batch_size).to(self.device)
-        state, next_state, action, reward, done = (batch.get(key) for key in ("state", "next_state", "action", "reward", "done"))
+        state, next_state, action, reward, done = (
+            batch.get(key)
+            for key in ("state", "next_state", "action", "reward", "done")
+        )
         return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
-
 
     ######################################################################
     # TD Estimate & TD Target
@@ -298,7 +315,6 @@ class Bot:
         ]
         return (reward + (1 - done.float()) * self.gamma * next_Q).float()
 
-
     ######################################################################
     # Updating the model
     # ~~~~~~~~~~~~~~~~~~~~~~
@@ -334,7 +350,6 @@ class Bot:
     def sync_Q_target(self):
         self.net.target.load_state_dict(self.net.online.state_dict())
 
-
     ######################################################################
     # Save checkpoint
     # ~~~~~~~~~~~~~~~~~~
@@ -348,8 +363,7 @@ class Bot:
             dict(model=self.net.state_dict(), exploration_rate=self.exploration_rate),
             save_path,
         )
-        print(f"BotNet saved to {save_path} at step {self.curr_step}")
-
+        # print(f"BotNet saved to {save_path} at step {self.curr_step}")
 
     ######################################################################
     # Putting it all together
@@ -406,8 +420,8 @@ class Bot:
 
 class BotNet(nn.Module):
     """mini CNN structure
-  input -> (conv2d + relu) x 3 -> flatten -> (dense + relu) x 2 -> output
-  """
+    input -> (conv2d + relu) x 3 -> flatten -> (dense + relu) x 2 -> output
+    """
 
     def __init__(self, input_dim, output_dim):
         super().__init__()
@@ -549,9 +563,11 @@ class MetricLogger:
 
         for metric in ["ep_lengths", "ep_avg_losses", "ep_avg_qs", "ep_rewards"]:
             plt.clf()
-            plt.plot(getattr(self, f"moving_avg_{metric}"), label=f"moving_avg_{metric}")
+            plt.plot(
+                getattr(self, f"moving_avg_{metric}"), label=f"moving_avg_{metric}"
+            )
             plt.legend()
-            plt.savefig(getattr(self, f"{metric}_plot"))
+            plt.savefig(str(getattr(self, f"{metric}_plot")) + ".png")
 
 
 ######################################################################
@@ -577,36 +593,40 @@ logger = MetricLogger(save_dir)
 
 episodes = 40
 for e in range(episodes):
-
     state = env.reset()
 
     # Play the game!
     while True:
-
+        # print("LOOP action")
         # Run agent on the state
         action = bot.act(state)
 
+        # print("LOOP step")
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
+        # print("LOOP cache")
         # Remember
         bot.cache(state, next_state, action, reward, done)
 
+        # print("LOOP learn")
         # Learn
         q, loss = bot.learn()
 
+        # print("LOOP log")
         # Logging
         logger.log_step(reward, loss, q)
 
+        # print("LOOP update")
         # Update state
         state = next_state
 
         # Check if end of game
         if done:
+            # print("LOOP done")
             break
 
     logger.log_episode()
 
     if (e % 20 == 0) or (e == episodes - 1):
         logger.record(episode=e, epsilon=bot.exploration_rate, step=bot.curr_step)
-

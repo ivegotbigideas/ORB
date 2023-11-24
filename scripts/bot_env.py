@@ -9,6 +9,7 @@ import api
 from api import Orb, Target
 import rospy
 
+
 class BotEnv(robot_gazebo_env.RobotGazeboEnv):
     """
     Superclass for all Robot environments.
@@ -22,25 +23,27 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
 
         # TODO Not sure what these are for
         # Internal Vars
-        print("START init bot_env")
+        # print("START init bot_env")
         self.controllers_list = []
 
         self.robot_name_space = ""
 
         reset_controls_bool = False
-        
+
         # We launch the init function of the Parent Class robot_gazebo_env.RobotGazeboEnv
-        
-        super(BotEnv, self).__init__(controllers_list=self.controllers_list,
-                                                robot_name_space=self.robot_name_space,
-                                                reset_controls=reset_controls_bool)
-        
+
+        super(BotEnv, self).__init__(
+            controllers_list=self.controllers_list,
+            robot_name_space=self.robot_name_space,
+            reset_controls=reset_controls_bool,
+        )
+
         self.bot_api = Orb()
         self.target_api = Target()
-        
+
         self.steps = 0
         self.grid_squares = 0
-        print("END init bot_env")
+        # print("END init bot_env")
 
     # Methods needed by the RobotGazeboEnv
     # ----------------------------
@@ -51,8 +54,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         # TODO Not sure what to do here
         return True
-        
-    
+
     # Methods that the TrainingEnvironment will need to define here as virtual
     # because they will be used in RobotGazeboEnv GrandParentClass and defined in the
     # TrainingEnvironment.
@@ -63,7 +65,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         self.bot_api.randomise_robot_pose()
         self.target_api.randomise_target_pose()
-    
+
     def _init_env_variables(self):
         """
         Inits variables needed to be initialised each time we reset at the start
@@ -79,20 +81,20 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         if self._is_touching_target():
             return 10000
-        
+
         map_list = self.bot_api.get_latest_slam_map()["data"]
         next_grid_squares = 0
-        
+
         for i in map_list:
             if i == 1:
                 next_grid_squares += 1
-        
+
         if next_grid_squares > self.grid_squares:
             self.grid_squares = next_grid_squares
             return 50
         else:
             self.grid_squares = next_grid_squares
-        
+
         return -1
 
     def _set_action(self, action):
@@ -109,16 +111,21 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
             act_string = "acw"
         else:
             act_string = "stop"
-        
+
         self.bot_api.move_robot(act_string)
 
     def _get_obs(self):
+        # print("OBS get_latest_camera")
         camera_data = self.bot_api.get_latest_camera_data()
         camera_array = (np.array(camera_data)).T.flatten()
-        
+
+        # print("OBS get_latest_lidar")
+        self.gazebo.unpauseSim()
         lidar_data = self.bot_api.get_latest_lidar_data()
+        self.gazebo.pauseSim()
         lidar_array = np.array(lidar_data["ranges"])
-        
+
+        # print("OBS concat")
         return np.concatenate((camera_array, lidar_array))
 
     def _is_done(self, observations):
@@ -126,26 +133,32 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         Checks if episode done based on observations given.
         """
         self.steps += 1
-        return self.steps >= 1000 or self._is_touching_target()
+        return self.steps >= 10 or self._is_touching_target()
 
     # Methods that the TrainingEnvironment will need.
     # ----------------------------
-    
+
     def _is_touching_target(self):
         """
         Returns True if the robot is within 5 co-ordinate points of the target.
         """
+        # print("TOUCHING robot_truth")
+        self.gazebo.unpauseSim()
         bot_pose = self.bot_api.get_ground_truth_robot_pose()
+        self.gazebo.pauseSim()
         bot_x = bot_pose["position"]["x"]
         bot_z = bot_pose["position"]["z"]
-        
+
+        # print("TOUCHING target_truth")
+        self.gazebo.unpauseSim()
         target_pose = self.target_api.get_ground_truth_target_pose()
+        self.gazebo.pauseSim()
         target_x = target_pose["position"]["x"]
         target_z = target_pose["position"]["z"]
-        
+
         x_dist = bot_x - target_x
         z_dist = bot_z - target_z
-        dist = math.sqrt((x_dist ** 2) + (z_dist ** 2))
-        
-        return (dist <= 5)
+        dist = math.sqrt((x_dist**2) + (z_dist**2))
 
+        # print("RETURNING")
+        return dist <= 1

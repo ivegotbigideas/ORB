@@ -73,8 +73,9 @@ class Orb:
         if callback_message:
             msg = callback_message
         else:
+            # print("TEST waiting for base_scan")
             msg = rospy.wait_for_message("/base_scan", LaserScan)
-        try: # fixes an error that occurs when this is called from elsewhere idk
+        try:  # fixes an error that occurs when this is called from elsewhere idk
             msg = msg[0]
         except:
             pass
