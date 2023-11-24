@@ -61,8 +61,12 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         """
         Sets the Robot in its init pose.
         """
-        self.bot_api.randomise_robot_pose()
-        self.target_api.randomise_target_pose()
+        while True:
+            self.bot_api.randomise_robot_pose()
+            self.target_api.randomise_target_pose()
+            
+            if not self._is_touching_target():
+                break;
     
     def _init_env_variables(self):
         """
