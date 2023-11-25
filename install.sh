@@ -12,6 +12,10 @@ sudo apt-get install ros-noetic-gmapping
 sudo apt-get install ros-noetic-explore-lite
 sudo apt-get install ros-noetic-navigation
 sudo apt-get install ros-noetic-move-base
+sudo apt-get install ros-noetic-robot-state-publisher
+sudo apt-get install ros-noetic-rviz
+sudo apt-get install ros-noetic-rqt-graph
+sudo apt-get install python3-rosdep
 cd ~/catkin_ws/src
 git clone git@github.com:IRUOB/socspioneer.git
 git clone git@github.com:ivegotbigideas/ORB.git
@@ -28,4 +32,3 @@ rosdep install openai_ros
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 pip install tensordict==0.2.0
 pip install torchrl==0.2.0
-
