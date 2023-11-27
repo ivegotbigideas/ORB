@@ -32,3 +32,4 @@ rosdep install openai_ros
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 pip install tensordict==0.2.0
 pip install torchrl==0.2.0
+pip install matplotlib

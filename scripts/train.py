@@ -103,7 +103,7 @@ class SkipFrame(gym.Wrapper):
 
 
 # Apply Wrappers to environment
-env = SkipFrame(env, skip=10)
+env = SkipFrame(env, skip=4)
 
 
 ######################################################################
