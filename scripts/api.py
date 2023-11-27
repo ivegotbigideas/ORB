@@ -45,7 +45,9 @@ class Orb:
             )
 
         # publishers
-        self._robot_twist_publisher = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+        self._robot_twist_publisher = rospy.Publisher(
+            "/cmd_vel_proxy", Twist, queue_size=10
+        )
         self._robot_model_state_publisher = rospy.Publisher(
             "/gazebo/set_model_state", ModelState, queue_size=10
         )
