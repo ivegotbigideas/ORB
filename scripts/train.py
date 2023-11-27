@@ -93,17 +93,18 @@ class SkipFrame(gym.Wrapper):
     def step(self, action):
         """Repeat action, and sum reward"""
         total_reward = 0.0
-        for i in range(self._skip):
-            # Accumulate reward and repeat the same action
-            obs, reward, done, info = self.env.step(action)
-            total_reward += reward
-            if done:
-                break
+        obs, reward, done, info = self.env.step(action)
+        total_reward += reward
+        env.play()
+        rate = rospy.Rate(1 / self._skip)
+        rate.sleep()
+        env.pause()
         return obs, total_reward, done, info
 
 
 # Apply Wrappers to environment
-env = SkipFrame(env, skip=4)
+# skip -> Number of seconds to wait between choosing actions
+env = SkipFrame(env, skip=5)
 
 
 ######################################################################

@@ -39,6 +39,7 @@
     <node pkg="orb" type="api.py" name="api_node" output="screen"/>
     <node pkg="orb" type="odometry_fix.py" name="odometry_fixer_node" output="screen"/>
     <node pkg="orb" type="estimated_pose_publisher.py" name="estimated_pose_publisher_node" output="screen"/>
+    <node pkg="orb" type="mover.py" name="movement_publisher" output="screen"/>
 
     <!--Exploration stuff-->
     <!-- <node name="move_base" pkg="move_base" type="move_base" respawn="false" output="screen">

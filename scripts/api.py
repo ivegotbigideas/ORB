@@ -128,16 +128,16 @@ class Orb:
 
         if dir == "f":
             print("FORWARD")
-            msg.linear.x = 1.0
+            msg.linear.x = 10.0
         elif dir == "b":
             print("BACKWARD")
-            msg.linear.x = -1.0
+            msg.linear.x = -10.0
         elif dir == "cw":
             print("CLOCKWISE")
-            msg.angular.z = -1.0
+            msg.angular.z = -5.0
         elif dir == "acw":
             print("COUNTER-CLOCKWISE")
-            msg.angular.z = 1.0
+            msg.angular.z = 5.0
         elif dir == "stop":
             print("STOP")
             msg.linear.x = 0.0
