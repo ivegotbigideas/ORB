@@ -137,7 +137,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         Checks if episode done based on observations given.
         """
         self.steps += 1
-        return self.steps >= 10 or self._is_touching_target()
+        return self.steps >= 200 or self._is_touching_target()
 
     # Methods that the TrainingEnvironment will need.
     # ----------------------------
@@ -166,3 +166,9 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
 
         # print("RETURNING")
         return dist <= 1
+
+    def pause(self):
+        self.gazebo.pauseSim()
+
+    def play(self):
+        self.gazebo.unpauseSim()
