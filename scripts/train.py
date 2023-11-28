@@ -606,11 +606,16 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
+camera_x = 32
+camera_y = 32
+lidar_count = 50
+
+input_size = (camera_x * camera_y) + lidar_count
+bot = Bot(state_dim=input_size, action_dim=5, save_dir=save_dir)
 
 logger = MetricLogger(save_dir)
 
-episodes = 40
+episodes = 200
 for e in range(episodes):
     state = env.reset()
 

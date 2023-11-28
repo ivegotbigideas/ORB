@@ -137,6 +137,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
             distance_change = self.previous_dist - new_dist
             reward += distance_change * 100  # Scale reward to be sensitive to small changes
 
+        reward -= 1
         self.previous_dist = new_dist
 
         print(reward)
