@@ -88,23 +88,19 @@ class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
         """Return only every `skip`-th frame"""
         super().__init__(env)
-        self._skip = skip
+        env.set_skip(7)
 
     def step(self, action):
         """Repeat action, and sum reward"""
         total_reward = 0.0
         obs, reward, done, info = self.env.step(action)
         total_reward += reward
-        env.play()
-        rate = rospy.Rate(1 / self._skip)
-        rate.sleep()
-        env.pause()
         return obs, total_reward, done, info
 
 
 # Apply Wrappers to environment
 # skip -> Number of seconds to wait between choosing actions
-env = SkipFrame(env, skip=5)
+env = SkipFrame(env, skip=8)
 
 
 ######################################################################
@@ -570,6 +566,28 @@ class MetricLogger:
             plt.legend()
             plt.savefig(str(getattr(self, f"{metric}_plot")) + ".png")
 
+    def print_episode(self, episode, epsilon, step):
+        mean_ep_reward = np.round(np.mean(self.ep_rewards[-100:]), 3)
+        mean_ep_length = np.round(np.mean(self.ep_lengths[-100:]), 3)
+        mean_ep_loss = np.round(np.mean(self.ep_avg_losses[-100:]), 3)
+        mean_ep_q = np.round(np.mean(self.ep_avg_qs[-100:]), 3)
+
+        last_record_time = self.record_time
+        self.record_time = time.time()
+        time_since_last_record = np.round(self.record_time - last_record_time, 3)
+
+        print(
+            f"Episode {episode} - "
+            f"Step {step} - "
+            f"Epsilon {epsilon} - "
+            f"Mean Reward {mean_ep_reward} - "
+            f"Mean Length {mean_ep_length} - "
+            f"Mean Loss {mean_ep_loss} - "
+            f"Mean Q Value {mean_ep_q} - "
+            f"Time Delta {time_since_last_record} - "
+            f"Time {datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
+        )
+
 
 ######################################################################
 # Let’s play!
@@ -628,6 +646,7 @@ for e in range(episodes):
             break
 
     logger.log_episode()
+    logger.print_episode(episode=e, epsilon=bot.exploration_rate, step=bot.curr_step)
 
     if (e % 20 == 0) or (e == episodes - 1):
         logger.record(episode=e, epsilon=bot.exploration_rate, step=bot.curr_step)

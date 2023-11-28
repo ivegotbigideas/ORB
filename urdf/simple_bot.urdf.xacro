@@ -21,19 +21,19 @@
   <joint name="l_whl_joint" type="continuous">
     <parent link="base_link"/>
     <child link="l_whl"/>
-    <origin xyz="0 -0.15 0" rpy="1.5708 0 0"/>
+    <origin xyz="0 -0.151 0" rpy="1.5708 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
   <link name="l_whl">
     <visual>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </collision>
     <inertial>
@@ -45,12 +45,12 @@
   <link name="r_whl">
     <visual>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </collision>
     <inertial>
@@ -62,7 +62,7 @@
   <joint name="r_whl_joint" type="continuous">
     <parent link="base_link"/>
     <child link="r_whl"/>
-    <origin xyz="0 0.15 0" rpy="1.5708 0 0"/>
+    <origin xyz="0 0.151 0" rpy="1.5708 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
@@ -115,7 +115,7 @@
       <rightJoint>r_whl_joint</rightJoint>
       <wheelSeparation>0.3</wheelSeparation>
       <wheelDiameter>0.3</wheelDiameter>
-      <torque>10.0</torque>
+      <torque>20.0</torque>
       <commandTopic>cmd_vel</commandTopic>
       <odometryFrame>odom</odometryFrame>
       <odometryTopic>odom</odometryTopic>
