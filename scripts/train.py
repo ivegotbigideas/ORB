@@ -110,7 +110,7 @@ env = SkipFrame(env, skip=5)
 # Agent
 # """""""""
 #
-# We create a class ``Bot`` to represent our agent in the game. The bot
+# We create a class ``Bot`` to represent our agent in the gazebo world. The bot
 # should be able to:
 #
 # -  **Act** according to the optimal action policy based on the current
@@ -436,17 +436,6 @@ class Bot:
 # Learn
 # --------------
 #
-# The bot uses the `DDQN algorithm <https://arxiv.org/pdf/1509.06461>`__
-# under the hood. DDQN uses two ConvNets - :math:`Q_{online}` and
-# :math:`Q_{target}` - that independently approximate the optimal
-# action-value function.
-#
-# In our implementation, we share feature generator ``features`` across
-# :math:`Q_{online}` and :math:`Q_{target}`, but maintain separate FC
-# classifiers for each. :math:`\theta_{target}` (the parameters of
-# :math:`Q_{target}`) is frozen to prevent updating by backprop. Instead,
-# it is periodically synced with :math:`\theta_{online}` (more on this
-# later).
 #
 # Neural Network
 # ~~~~~~~~~~~~~~~~~~
@@ -650,13 +639,8 @@ class MetricLogger:
 
 
 ######################################################################
-# Let’s play!
+# Let’s go!
 # """""""""""""""
-#
-# The code is currently set to 40 episodes to test, but this will probably
-# need to be much higher for the resulting neural network to be effective -
-# the mario example suggested 40,000 episodes, but that task isn't completely
-# comparable.
 #
 
 use_cuda = torch.cuda.is_available()
