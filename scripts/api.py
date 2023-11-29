@@ -102,6 +102,15 @@ class Orb:
             "intensities": list(msg.intensities),
         }
 
+        normalized_ranges = []
+        for range_val in laser_data["ranges"]:
+            if np.isinf(range_val):
+                range_val = msg.range_max
+            normalized_val = (range_val - msg.range_min) / (msg.range_max - msg.range_min)
+            normalized_ranges.append(min(max(normalized_val, 0), 1))
+
+        laser_data["ranges"] = normalized_ranges
+
         return laser_data
 
     def get_ground_truth_robot_pose(self, *callback_message):

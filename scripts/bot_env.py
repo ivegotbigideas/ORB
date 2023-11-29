@@ -162,18 +162,21 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         self.bot_api.move_robot(act_string)
 
     def _get_obs(self):
-        # print("OBS get_latest_camera")
+        # Process Camera Data
         camera_data = self.bot_api.get_latest_camera_data()
-        camera_array = (np.array(camera_data)).T.flatten()
+        camera_array = (np.array(camera_data) / 255.0).flatten()
 
-        # print("OBS get_latest_lidar")
+        # Process LIDAR Data
         self.gazebo.unpauseSim()
         lidar_data = self.bot_api.get_latest_lidar_data()
         self.gazebo.pauseSim()
         lidar_array = np.array(lidar_data["ranges"])
 
-        # print("OBS concat")
-        return np.concatenate((camera_array, lidar_array))
+        # Concatenate Camera and LIDAR Data
+        final = np.concatenate([camera_array, lidar_array])
+        #print(final.shape)
+        return final
+
 
     def _is_done(self, observations):
         """

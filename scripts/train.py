@@ -122,15 +122,19 @@ env = SkipFrame(env, skip=8)
 
 
 class Bot:
-    def __init__(self, state_dim, action_dim, save_dir):
-        self.state_dim = state_dim
+    def __init__(self, image_channels, lidar_dim, action_dim, save_dir, load_path=None):
+        self.image_channels = image_channels
+        self.lidar_dim = lidar_dim
         self.action_dim = action_dim
         self.save_dir = save_dir
 
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
         # The bot's DNN to predict the most optimal action
-        self.net = BotNet(self.state_dim, self.action_dim).float()
+        self.net = BotNet(self.image_channels, self.lidar_dim, self.action_dim).float()
+        self.net.online.requires_grad_(True)
+        if load_path:
+            self.load(load_path)
         self.net = self.net.to(device=self.device)
 
         self.exploration_rate = 1
@@ -138,7 +142,7 @@ class Bot:
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
-        self.save_every = 5e5  # no. of experiences between saving BotNet
+        self.save_every = 20  # no. of experiences between saving BotNet
 
         self.memory = TensorDictReplayBuffer(
             storage=LazyMemmapStorage(100000, device=torch.device("cpu"))
@@ -153,6 +157,32 @@ class Bot:
         self.burnin = 1e4  # min. experiences before training
         self.learn_every = 3  # no. of experiences between updates to Q_online
         self.sync_every = 1e4  # no. of experiences between Q_target & Q_online sync
+
+    def split_state(self, state):
+        if not isinstance(state, torch.Tensor):
+            state_tensor = torch.tensor(state, dtype=torch.float).to(self.device)
+        else:
+            state_tensor = state.float().to(self.device)
+
+        # Split the state into camera and LIDAR data
+        camera_data = state_tensor[:, :3072]  # First 3072 elements
+        lidar_data = state_tensor[:, 3072:]   # Last 50 elements
+
+        # Reshape camera data to [batch_size, channels, height, width]
+        camera_data = camera_data.view(-1, 3, 32, 32)
+        lidar_data = lidar_data.view(-1, 50) 
+
+        return camera_data, lidar_data
+
+    def load(self, load_path):
+        """Load the model and exploration rate from a saved checkpoint"""
+        if load_path.is_file():
+            checkpoint = torch.load(load_path, map_location=self.device)
+            self.net.load_state_dict(checkpoint.get('model'))
+            self.exploration_rate = checkpoint.get('exploration_rate')
+            print(f"Loaded checkpoint from {load_path}")
+        else:
+            print(f"No checkpoint found at {load_path}, starting from scratch")
 
     ######################################################################
     # Act
@@ -184,8 +214,10 @@ class Bot:
             state = (
                 state[0].__array__() if isinstance(state, tuple) else state.__array__()
             )
-            state = torch.tensor(state, device=self.device).unsqueeze(0)
-            action_values = self.net(state, model="online")
+            state = torch.tensor(state, device=self.device, dtype=torch.float).unsqueeze(0)
+            camera_data, lidar_data = self.split_state(state)
+            action_values = self.net(camera_data, lidar_data, model="online")
+            print(action_values)
             action_idx = torch.argmax(action_values, axis=1).item()
 
         # decrease exploration_rate
@@ -253,12 +285,12 @@ class Bot:
         """
         Retrieve a batch of experiences from memory
         """
-        batch = self.memory.sample(self.batch_size).to(self.device)
+        batch = self.memory.sample(self.batch_size).to(self.device, dtype=torch.float)
         state, next_state, action, reward, done = (
             batch.get(key)
             for key in ("state", "next_state", "action", "reward", "done")
         )
-        return state, next_state, action.squeeze(), reward.squeeze(), done.squeeze()
+        return state.squeeze(), next_state.squeeze(), action.squeeze(), reward.squeeze(), done.squeeze()
 
     ######################################################################
     # TD Estimate & TD Target
@@ -298,17 +330,19 @@ class Bot:
     #
 
     def td_estimate(self, state, action):
-        current_Q = self.net(state, model="online")[
-            np.arange(0, self.batch_size), action
-        ]  # Q_online(s,a)
+        camera_data, lidar_data = self.split_state(state)
+        action = action.long()
+        all_Q = self.net(camera_data, lidar_data, model="online")
+        current_Q = all_Q[torch.arange(0, self.batch_size), action]
         return current_Q
 
     @torch.no_grad()
     def td_target(self, reward, next_state, done):
-        next_state_Q = self.net(next_state, model="online")
+        camera_data, lidar_data = self.split_state(next_state)
+        next_state_Q = self.net(camera_data, lidar_data, model="online")
         best_action = torch.argmax(next_state_Q, axis=1)
-        next_Q = self.net(next_state, model="target")[
-            np.arange(0, self.batch_size), best_action
+        next_Q = self.net(camera_data, lidar_data, model="target")[
+            torch.arange(0, self.batch_size), best_action
         ]
         return (reward + (1 - done.float()) * self.gamma * next_Q).float()
 
@@ -368,14 +402,14 @@ class Bot:
     #
 
     def learn(self):
-        if self.curr_step % self.sync_every == 0:
-            self.sync_Q_target()
+        #if self.curr_step % self.sync_every == 0:
+        #    self.sync_Q_target()
 
         if self.curr_step % self.save_every == 0:
             self.save()
 
-        if self.curr_step < self.burnin:
-            return None, None
+        #if self.curr_step < self.burnin:
+        #    return None, None
 
         if self.curr_step % self.learn_every != 0:
             return None, None
@@ -416,40 +450,63 @@ class Bot:
 
 
 class BotNet(nn.Module):
-    """mini CNN structure
-    input -> (conv2d + relu) x 3 -> flatten -> (dense + relu) x 2 -> output
-    """
-
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, image_channels, lidar_dim, output_dim):
         super().__init__()
-        self.online = self.__build_cnn(input_dim, output_dim)
+        # Convolutional layers for camera processing
+        self.conv_layers = nn.Sequential(
+            nn.Conv2d(in_channels=image_channels, out_channels=32, kernel_size=8, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1),
+            nn.ReLU(),
+            nn.Flatten()
+        )
+        
+        # Fully connected layers for LIDAR data processing
+        self.lidar_layers = nn.Sequential(
+            nn.Linear(lidar_dim, 128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU()
+        )
 
-        self.target = self.__build_cnn(input_dim, output_dim)
+        with torch.no_grad():
+            self._image_feature_dim = self._get_conv_output_dim(image_channels)
+
+        # Combined layers for decision making
+        combined_dim = self._image_feature_dim + 64 
+        self.combined_layers = nn.Sequential(
+            nn.Linear(combined_dim, 512),
+            nn.ReLU(),
+            nn.Linear(512, output_dim)
+        )
+
+        self.online = nn.Sequential(self.conv_layers, self.lidar_layers, self.combined_layers)
+        self.target = nn.Sequential(self.conv_layers, self.lidar_layers, self.combined_layers)
         self.target.load_state_dict(self.online.state_dict())
 
         # Q_target parameters are frozen.
         for p in self.target.parameters():
             p.requires_grad = False
 
-    def forward(self, input, model):
-        if model == "online":
-            return self.online(input)
-        elif model == "target":
-            return self.target(input)
+    def _get_conv_output_dim(self, image_channels):
+        dummy_input = torch.zeros(1, image_channels, 32, 32)
+        dummy_output = self.conv_layers(dummy_input)
+        return int(np.prod(dummy_output.size()))
 
-    def __build_cnn(self, c, output_dim):
-        return nn.Sequential(
-            nn.Conv2d(in_channels=c, out_channels=32, kernel_size=8, stride=4),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2),
-            nn.ReLU(),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=3, stride=1),
-            nn.ReLU(),
-            nn.Flatten(),
-            nn.Linear(3136, 512),
-            nn.ReLU(),
-            nn.Linear(512, output_dim),
-        )
+    def forward(self, image, lidar, model):
+        # Validate the model type
+        if model not in ["online", "target"]:
+            raise ValueError("Invalid model specified")
+
+        # Process image and lidar data using the layers of BotNet
+        image_features = self.conv_layers(image)
+        lidar_features = self.lidar_layers(lidar)
+
+        # Concatenate features and pass through combined layers
+        combined_features = torch.cat((image_features, lidar_features), dim=1)
+        return self.combined_layers(combined_features)
 
 
 ######################################################################
@@ -608,10 +665,13 @@ save_dir.mkdir(parents=True)
 
 camera_x = 32
 camera_y = 32
+camera_channels = 3
+camera_dim = camera_x * camera_y * camera_channels
 lidar_count = 50
-
-input_size = (camera_x * camera_y) + lidar_count
-bot = Bot(state_dim=input_size, action_dim=5, save_dir=save_dir)
+#print(input_size)
+#load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-28T22-55-49/bot_net_62.chkpt")
+load_path = None
+bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5, save_dir=save_dir, load_path=load_path)
 
 logger = MetricLogger(save_dir)
 
@@ -621,33 +681,26 @@ for e in range(episodes):
 
     # Play the game!
     while True:
-        # print("LOOP action")
         # Run agent on the state
         action = bot.act(state)
 
-        # print("LOOP step")
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # print("LOOP cache")
         # Remember
         bot.cache(state, next_state, action, reward, done)
 
-        # print("LOOP learn")
         # Learn
         q, loss = bot.learn()
 
-        # print("LOOP log")
         # Logging
         logger.log_step(reward, loss, q)
 
-        # print("LOOP update")
         # Update state
         state = next_state
 
         # Check if end of game
         if done:
-            # print("LOOP done")
             break
 
     logger.log_episode()
