@@ -614,6 +614,8 @@ episodes = 40
 ######################################################################
 # Create the bot
 # """""""""""""""
+
+
 bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
 
 
