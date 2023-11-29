@@ -23,6 +23,9 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 
 rospy.init_node("trainer")
 
+TOTAL_EPISODES = 200
+LEARNING_RATE = 0.00025
+
 ######################################################################
 # RL Definitions
 # """"""""""""""""""
@@ -88,7 +91,7 @@ class SkipFrame(gym.Wrapper):
     def __init__(self, env, skip):
         """Return only every `skip`-th frame"""
         super().__init__(env)
-        env.set_skip(7)
+        env.set_skip(skip)
 
     def step(self, action):
         """Repeat action, and sum reward"""
@@ -100,7 +103,7 @@ class SkipFrame(gym.Wrapper):
 
 # Apply Wrappers to environment
 # skip -> Number of seconds to wait between choosing actions
-env = SkipFrame(env, skip=8)
+env = SkipFrame(env, skip=5)
 
 
 ######################################################################
@@ -138,11 +141,11 @@ class Bot:
         self.net = self.net.to(device=self.device)
 
         self.exploration_rate = 1
-        self.exploration_rate_decay = 0.99999975
+        self.exploration_rate_decay = 0.99999975 ** (TOTAL_EPISODES / 4000)
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
-        self.save_every = 20  # no. of experiences between saving BotNet
+        self.save_every = 25  # no. of experiences between saving BotNet
 
         self.memory = TensorDictReplayBuffer(
             storage=LazyMemmapStorage(100000, device=torch.device("cpu"))
@@ -151,7 +154,7 @@ class Bot:
 
         self.gamma = 0.9
 
-        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=0.00025)
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr=LEARNING_RATE)
         self.loss_fn = torch.nn.SmoothL1Loss()
 
         self.burnin = 1e4  # min. experiences before training
@@ -663,10 +666,7 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-camera_x = 32
-camera_y = 32
 camera_channels = 3
-camera_dim = camera_x * camera_y * camera_channels
 lidar_count = 50
 #print(input_size)
 #load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-28T22-55-49/bot_net_62.chkpt")
@@ -675,7 +675,7 @@ bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5,
 
 logger = MetricLogger(save_dir)
 
-episodes = 200
+episodes = TOTAL_EPISODES
 for e in range(episodes):
     state = env.reset()
 
