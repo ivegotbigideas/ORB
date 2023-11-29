@@ -588,7 +588,6 @@ class MetricLogger:
             f"Time {datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S')}"
         )
 
-
 ######################################################################
 # Learning config
 # """""""""""""""
@@ -607,11 +606,15 @@ print()
 save_dir = Path("checkpoints") / datetime.datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
 save_dir.mkdir(parents=True)
 
-bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
-
 logger = MetricLogger(save_dir)
 
 episodes = 40
+
+
+######################################################################
+# Create the bot
+# """""""""""""""
+bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
 
 
 ######################################################################
