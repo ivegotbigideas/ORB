@@ -590,7 +590,7 @@ class MetricLogger:
 
 
 ######################################################################
-# Let’s play!
+# Learning config
 # """""""""""""""
 #
 # The code is currently set to 40 episodes to test, but this will probably
@@ -598,6 +598,7 @@ class MetricLogger:
 # the mario example suggested 40,000 episodes, but that task isn't completely
 # comparable.
 #
+
 
 use_cuda = torch.cuda.is_available()
 print(f"Using CUDA: {use_cuda}")
@@ -611,6 +612,40 @@ bot = Bot(state_dim=1250, action_dim=5, save_dir=save_dir)
 logger = MetricLogger(save_dir)
 
 episodes = 40
+
+
+######################################################################
+# Train or import parameters?
+# """""""""""""""
+#
+
+
+def remove_prefixes(state_dict, prefix):
+    new_state_dict = {}
+    for key in state_dict:
+        if key.startswith(prefix):
+            new_key = key[len(prefix):]
+            new_state_dict[new_key] = state_dict[key]
+    return new_state_dict
+
+learn = False # configuration option to see if the model should be trained (True), or if existing parameters should be imported (False)
+if not learn:
+    checkpoint_path = input("Enter the path to the checkpoint file that you would like to test: ")
+    checkpoint = torch.load(checkpoint_path)
+    bot.exploration_rate = checkpoint["exploration_rate"]
+    online_state_dict = remove_prefixes(checkpoint['model'], 'online.')
+    target_state_dict = remove_prefixes(checkpoint['model'], 'target.')
+    bot.net.online.load_state_dict(online_state_dict)
+    bot.net.target.load_state_dict(target_state_dict)
+    episodes = 1
+
+
+######################################################################
+# let's go
+# """""""""""""""
+#
+
+
 for e in range(episodes):
     state = env.reset()
 
@@ -624,17 +659,18 @@ for e in range(episodes):
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # print("LOOP cache")
-        # Remember
-        bot.cache(state, next_state, action, reward, done)
+        if learn:
+            # print("LOOP cache")
+            # Remember
+            bot.cache(state, next_state, action, reward, done)
 
-        # print("LOOP learn")
-        # Learn
-        q, loss = bot.learn()
+            # print("LOOP learn")
+            # Learn
+            q, loss = bot.learn()
 
-        # print("LOOP log")
-        # Logging
-        logger.log_step(reward, loss, q)
+            # print("LOOP log")
+            # Logging
+            logger.log_step(reward, loss, q)
 
         # print("LOOP update")
         # Update state
