@@ -15,7 +15,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 
 # config
 orb_name = "simple_bot"
-target_name = "pink_box"
+target_name = "black_box"
 debug = False
 if os.path.exists(".debug"):
     debug = True
@@ -284,8 +284,8 @@ def get_true_pose(model_states_msg, obj_name):
 def randomise_pose(obj_name):
     msg = ModelState()
     msg.model_name = obj_name
-    msg.pose.position.x = random.uniform(-4.2, 4.2)  # tweak these limits
-    msg.pose.position.y = random.uniform(-9, 9)  # tweak these limits
+    msg.pose.position.x = random.uniform(-1, 1)  # tweak these limits
+    msg.pose.position.y = random.uniform(-1, 1)  # tweak these limits
     msg.pose.position.z = 0.1
 
     new_yaw = random.uniform(-np.pi, np.pi)

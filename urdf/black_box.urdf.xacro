@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
-<robot name="pink_box" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="black_box" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <link name="box_link">
     <visual>
       <geometry>
-        <box size="0.3 0.3 0.3"/>
+        <box size="0.7 0.7 0.7"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <box size="0.3 0.3 0.3"/>
+        <box size="0.7 0.7 0.7"/>
       </geometry>
     </collision>
     <inertial>
@@ -21,10 +21,11 @@
   </link>
   <gazebo reference="box_link">
     <visual>
+      <cast_shadows>0</cast_shadows>
       <material>
-        <ambient>1 0.4 0.6 1</ambient>
-        <diffuse>1 0 0.6 1</diffuse>
-        <specular>1 0.5 0.7 1</specular>
+        <ambient>0 0 0 1</ambient>
+        <diffuse>0 0 0 1</diffuse>
+        <specular>0 0 0 1</specular>
       </material>
     </visual>
 </gazebo>
