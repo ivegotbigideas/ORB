@@ -126,7 +126,8 @@ class Orb:
         except:
             pass
 
-        return get_true_pose(msg, orb_name)
+        orb_pose = get_true_pose(msg, orb_name)
+        return orb_pose
 
     def move_robot(self, dir):
         """
