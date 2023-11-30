@@ -13,3 +13,6 @@ Download the install.sh script from this repository, ensure it is executable and
 # launching
 ```roslaunch orb cafe_world.launch```
 
+# notes
+If one wants to remove the objects from cafe.world to yield an empty plane, one must simply remove the XML SDF code defining the actors, table models and cafe model.
+
