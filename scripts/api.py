@@ -15,7 +15,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 
 # config
 orb_name = "simple_bot"
-target_name = "pink_box"
+target_name = "black_box"
 debug = False
 if os.path.exists(".debug"):
     debug = True
