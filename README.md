@@ -4,7 +4,7 @@
 # installation
 Download the install.sh script from this repository, ensure it is executable and then run the following commands:
 
-```./install.sh```
+```source install.sh```
 
 ```pip install gymnasium```
 
