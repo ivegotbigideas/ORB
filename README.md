@@ -2,50 +2,17 @@
 3.8.10
 
 # installation
-```source /opt/ros/noetic/setup.bash```
+Download the install.sh script from this repository, ensure it is executable and then run the following commands:
 
-```mkdir -p ~/catkin_ws/src```
+```./install.sh```
 
-```cd ~/catkin_ws/```
+```pip install gymnasium```
 
-```catkin_make```
-
-```source ~/catkin_ws/devel/setup.bash```
-
-```sudo apt-get install gazebo11```
-
-```sudo apt-get install ros-noetic-gazebo-ros-pkgs ros-noetic-gazebo-ros-control```
-
-```sudo apt-get install ros-noetic-xacro```
-
-```sudo apt-get install ros-noetic-pr2-teleop```
-
-```sudo apt-get install ros-noetic-gmapping```
-
-```sudo apt-get install ros-noetic-explore-lite```
-
-```sudo apt-get install ros-noetic-navigation #not sure this is necessary```
-
-```sudo apt-get install ros-noetic-move-base```
-
-```cd ~/catkin_ws/src```
-
-```git clone git@github.com:IRUOB/socspioneer.git```
-
-```git clone git@github.com:ivegotbigideas/ORB.git```
-
-```mv ~/catkin_ws/src/ORB/ ~/catkin_ws/src/orb/```
-
-```mkdir ~/catkin_ws/src/orb/worlds```
-
-```cp /usr/share/gazebo-11/worlds/cafe.world /home/{$USERNAME}/catkin_ws/src/orb/worlds/```
-
-```cd ~/catkin_ws/```
-
-```catkin_make```
-
-```source ~/catkin_ws/devel/setup.bash```
+```pip install gym```
 
 # launching
+```roslaunch orb simulation.launch```
 
-```roslaunch orb cafe_world.launch```
+# notes
+If one wants to remove the objects from cafe.world to yield an empty plane, one must simply remove the XML SDF code defining the actors, table models and cafe model.
+

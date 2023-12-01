@@ -21,19 +21,19 @@
   <joint name="l_whl_joint" type="continuous">
     <parent link="base_link"/>
     <child link="l_whl"/>
-    <origin xyz="0 -0.15 0" rpy="1.5708 0 0"/>
+    <origin xyz="0 -0.151 0" rpy="1.5708 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
   <link name="l_whl">
     <visual>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </collision>
     <inertial>
@@ -45,12 +45,12 @@
   <link name="r_whl">
     <visual>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </visual>
     <collision>
       <geometry>
-        <cylinder radius="0.15" length="0.05"/>
+        <cylinder radius="0.151" length="0.05"/>
       </geometry>
     </collision>
     <inertial>
@@ -62,7 +62,7 @@
   <joint name="r_whl_joint" type="continuous">
     <parent link="base_link"/>
     <child link="r_whl"/>
-    <origin xyz="0 0.15 0" rpy="1.5708 0 0"/>
+    <origin xyz="0 0.151 0" rpy="1.5708 0 0"/>
     <axis xyz="0 0 1"/>
   </joint>
 
@@ -83,7 +83,7 @@
       <ray>
         <scan>
           <horizontal>
-            <samples>1000</samples>
+            <samples>50</samples>
             <resolution>1</resolution>
             <min_angle>-1.570796</min_angle>
             <max_angle>1.570796</max_angle>
@@ -115,7 +115,7 @@
       <rightJoint>r_whl_joint</rightJoint>
       <wheelSeparation>0.3</wheelSeparation>
       <wheelDiameter>0.3</wheelDiameter>
-      <torque>10.0</torque>
+      <torque>20.0</torque>
       <commandTopic>cmd_vel</commandTopic>
       <odometryFrame>odom</odometryFrame>
       <odometryTopic>odom</odometryTopic>
@@ -152,8 +152,8 @@
       <camera name="head">
         <horizontal_fov>1.3962634</horizontal_fov>
         <image>
-          <width>640</width>
-          <height>480</height>
+          <width>32</width>
+          <height>32</height>
           <format>R8G8B8</format>
         </image>
         <clip>
@@ -171,5 +171,33 @@
       </plugin>
     </sensor>
   </gazebo>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/</robotNamespace>
+    </plugin>
+  </gazebo>
+
+  <transmission name="left_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="l_whl_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="l_whl_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="right_wheel_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="r_whl_joint">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="r_whl_motor">
+      <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
 
 </robot>

@@ -1,4 +1,6 @@
 worlds/cafe.world
+checkpoints/*
+*/__pycache__/*
 .debug
 *.pyc
 *.png

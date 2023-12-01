@@ -15,7 +15,7 @@ from gazebo_msgs.msg import ModelStates, ModelState
 
 # config
 orb_name = "simple_bot"
-target_name = "pink_box"
+target_name = "black_box"
 debug = False
 if os.path.exists(".debug"):
     debug = True
@@ -45,7 +45,9 @@ class Orb:
             )
 
         # publishers
-        self._robot_twist_publisher = rospy.Publisher("/cmd_vel", Twist, queue_size=10)
+        self._robot_twist_publisher = rospy.Publisher(
+            "/cmd_vel_proxy", Twist, queue_size=10
+        )
         self._robot_model_state_publisher = rospy.Publisher(
             "/gazebo/set_model_state", ModelState, queue_size=10
         )
@@ -73,8 +75,12 @@ class Orb:
         if callback_message:
             msg = callback_message
         else:
+            # print("TEST waiting for base_scan")
             msg = rospy.wait_for_message("/base_scan", LaserScan)
-        msg = msg[0]
+        try:  # fixes an error that occurs when this is called from elsewhere idk
+            msg = msg[0]
+        except:
+            pass
 
         laser_data = {
             "header": {
@@ -96,6 +102,15 @@ class Orb:
             "intensities": list(msg.intensities),
         }
 
+        normalized_ranges = []
+        for range_val in laser_data["ranges"]:
+            if np.isinf(range_val):
+                range_val = msg.range_max
+            normalized_val = (range_val - msg.range_min) / (msg.range_max - msg.range_min)
+            normalized_ranges.append(min(max(normalized_val, 0), 1))
+
+        laser_data["ranges"] = normalized_ranges
+
         return laser_data
 
     def get_ground_truth_robot_pose(self, *callback_message):
@@ -111,7 +126,8 @@ class Orb:
         except:
             pass
 
-        return get_true_pose(msg, orb_name)
+        orb_pose = get_true_pose(msg, orb_name)
+        return orb_pose
 
     def move_robot(self, dir):
         """
@@ -121,14 +137,19 @@ class Orb:
         msg = Twist()
 
         if dir == "f":
-            msg.linear.x = 1.0
+            print("FORWARD")
+            msg.linear.x = 100.0
         elif dir == "b":
-            msg.linear.x = -1.0
+            print("BACKWARD")
+            msg.linear.x = -100.0
         elif dir == "cw":
-            msg.angular.z = -1.0
+            print("CLOCKWISE")
+            msg.angular.z = -5.0
         elif dir == "acw":
-            msg.angular.z = 1.0
+            print("COUNTER-CLOCKWISE")
+            msg.angular.z = 5.0
         elif dir == "stop":
+            print("STOP")
             msg.linear.x = 0.0
             msg.angular.z = 0.0
 
@@ -148,7 +169,10 @@ class Orb:
             msg = callback_message
         else:
             msg = rospy.wait_for_message("/map", OccupancyGrid)
-        msg = msg[0]
+        try:
+            msg = msg[0]
+        except:
+            pass
 
         occ_grid = {
             "header": {
@@ -260,9 +284,9 @@ def get_true_pose(model_states_msg, obj_name):
 def randomise_pose(obj_name):
     msg = ModelState()
     msg.model_name = obj_name
-    msg.pose.position.x = random.uniform(-4.2, 4.2)  # tweak these limits
-    msg.pose.position.y = random.uniform(-9, 9)  # tweak these limits
-    msg.pose.position.z = 1
+    msg.pose.position.x = random.uniform(-3, 3)  # tweak these limits
+    msg.pose.position.y = random.uniform(-3, 3)  # tweak these limits
+    msg.pose.position.z = 0.1
 
     new_yaw = random.uniform(-np.pi, np.pi)
     new_quat = tf.transformations.quaternion_from_euler(0, 0, new_yaw)
