@@ -23,8 +23,8 @@ from torchrl.data import TensorDictReplayBuffer, LazyMemmapStorage
 
 rospy.init_node("trainer")
 
-TOTAL_EPISODES = 200
-LEARNING_RATE = 0.005
+TOTAL_EPISODES = 400
+LEARNING_RATE = 0.01
 
 ######################################################################
 # RL Definitions
@@ -140,8 +140,8 @@ class Bot:
             self.load(load_path)
         self.net = self.net.to(device=self.device)
 
-        self.exploration_rate = 0.8
-        self.exploration_rate_decay = 0.9995 # Decay rate where it is around 0.1 at the end of training
+        self.exploration_rate = 0.5
+        self.exploration_rate_decay = 0.996 # Decay rate where it is around 0.1 at the end of training
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
@@ -480,7 +480,8 @@ class BotNet(nn.Module):
             nn.Linear(combined_dim, 512),
             nn.ReLU(),
             nn.Dropout(0.5),
-            nn.Linear(512, output_dim)
+            nn.Linear(512, output_dim),
+            nn.LayerNorm(output_dim)
         )
 
         self.online = nn.Sequential(self.conv_layers, self.lidar_layers, self.combined_layers)
@@ -662,7 +663,7 @@ save_dir.mkdir(parents=True)
 camera_channels = 3
 lidar_count = 50
 #print(input_size)
-load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-30T02-48-07/bot_net_121.chkpt")
+load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-30T16-16-38/bot_net_143.chkpt")
 #load_path = None
 bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5, save_dir=save_dir, load_path=load_path)
 

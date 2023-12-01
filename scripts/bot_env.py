@@ -139,7 +139,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         elif distance_change > 0:
             reward += distance_change * 200  # Reward for moving closer
         else:
-            reward += distance_change * 30   # Penalty for moving away
+            reward += distance_change * 60   # Penalty for moving away
 
         angle_difference = self._calculate_angle_difference()
 
@@ -153,7 +153,7 @@ class BotEnv(robot_gazebo_env.RobotGazeboEnv):
         look_at_reward = 0
         angle_factor_change = angle_factor - self.previous_angle_factor
         if angle_factor_change > 0:
-            look_at_reward += angle_factor_change * 20  # Reward for looking towards
+            look_at_reward += angle_factor_change * 35  # Reward for looking towards
         else:
             look_at_reward += angle_factor_change * 50   # Penalty for looking away
         reward += look_at_reward
