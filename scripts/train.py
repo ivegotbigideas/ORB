@@ -690,7 +690,7 @@ for e in range(episodes):
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        if not os.path.isfile(".demo"):
+        if not DEMO:
             # Remember
             bot.cache(state, next_state, action, reward, done)
 
