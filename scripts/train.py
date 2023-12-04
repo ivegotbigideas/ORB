@@ -701,8 +701,8 @@ for e in range(episodes):
             # Logging
             logger.log_step(reward, loss, q)
 
-            # Update state
-            state = next_state
+        # Update state
+        state = next_state
 
         # Check if end of game
         if done:
