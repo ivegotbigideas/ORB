@@ -673,6 +673,7 @@ logger = MetricLogger(save_dir)
 episodes = TOTAL_EPISODES
 
 # demo config
+DEMO = False
 if os.path.isfile(".demo"):
     DEMO = True
     episodes = 1
