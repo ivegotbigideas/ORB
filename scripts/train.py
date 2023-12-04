@@ -704,7 +704,7 @@ for e in range(episodes):
         state = next_state
 
         # Check if end of game
-        if done or DEMO:
+        if done:
             break
 
     logger.log_episode()
