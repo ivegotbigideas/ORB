@@ -10,6 +10,7 @@ import numpy as np
 from pathlib import Path
 from collections import deque
 import random, datetime, os, rospy
+import os
 
 # Gym is an OpenAI toolkit for RL
 import gym
@@ -670,6 +671,14 @@ bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5,
 logger = MetricLogger(save_dir)
 
 episodes = TOTAL_EPISODES
+
+# demo config
+if os.path.isfile(".demo"):
+    DEMO = True
+    episodes = 1
+    bot.exploration_rate_min = 0
+    bot.exploration_rate = 0
+
 for e in range(episodes):
     state = env.reset()
 
@@ -681,17 +690,18 @@ for e in range(episodes):
         # Agent performs action
         next_state, reward, done, info = env.step(action)
 
-        # Remember
-        bot.cache(state, next_state, action, reward, done)
+        if not os.path.isfile(".demo"):
+            # Remember
+            bot.cache(state, next_state, action, reward, done)
 
-        # Learn
-        q, loss = bot.learn()
+            # Learn
+            q, loss = bot.learn()
 
-        # Logging
-        logger.log_step(reward, loss, q)
+            # Logging
+            logger.log_step(reward, loss, q)
 
-        # Update state
-        state = next_state
+            # Update state
+            state = next_state
 
         # Check if end of game
         if done:
