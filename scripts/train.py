@@ -141,7 +141,7 @@ class Bot:
         self.net = self.net.to(device=self.device)
 
         self.exploration_rate = 0.5
-        self.exploration_rate_decay = 0.996 # Decay rate where it is around 0.1 at the end of training
+        self.exploration_rate_decay = 0.999839 # Decay rate where it is around 0.1 at the end of training
         self.exploration_rate_min = 0.1
         self.curr_step = 0
 
@@ -663,7 +663,7 @@ save_dir.mkdir(parents=True)
 camera_channels = 3
 lidar_count = 50
 #print(input_size)
-load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-30T16-16-38/bot_net_143.chkpt")
+load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-30T23-40-35/bot_net_287.chkpt")
 #load_path = None
 bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5, save_dir=save_dir, load_path=load_path)
 
