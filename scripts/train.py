@@ -664,7 +664,7 @@ save_dir.mkdir(parents=True)
 camera_channels = 3
 lidar_count = 50
 #print(input_size)
-load_path = Path("/home/ros/catkin_ws/src/orb/checkpoints/2023-11-30T16-16-38/bot_net_143.chkpt")
+load_path = Path("/home/little/catkin_ws/src/checkpoints/2023-12-04T10-07-22/bot_net_3.chkpt")
 #load_path = None
 bot = Bot(image_channels=camera_channels, lidar_dim = lidar_count, action_dim=5, save_dir=save_dir, load_path=load_path)
 
@@ -673,9 +673,8 @@ logger = MetricLogger(save_dir)
 episodes = TOTAL_EPISODES
 
 # demo config
-DEMO = False
-if os.path.isfile(".demo"):
-    DEMO = True
+DEMO = True
+if DEMO:
     episodes = 1
     bot.exploration_rate_min = 0
     bot.exploration_rate = 0
