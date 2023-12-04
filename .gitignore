@@ -4,3 +4,4 @@ checkpoints/*
 .debug
 *.pyc
 *.png
+.demo
